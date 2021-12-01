@@ -22,7 +22,7 @@ UNO on Discord
 4. Do `/cards` to view your cards and options
 5. Have fun!
 
-![Gif Example]()
+![Gif Example](https://raw.githubusercontent.com/WilliamWelsh/UNO/main/gifexample.gif)
 
 ### Help & Issues
 
