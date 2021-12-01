@@ -296,10 +296,10 @@ namespace UNO.Types
                     .Build();
 
                 m.Components = new ComponentBuilder()
-                    .WithButton("Red", $"wild-Red-{special}-{index}", style: ButtonStyle.Danger)
-                    .WithButton("Green", $"wild-Green-{special}-{index}", style: ButtonStyle.Success)
-                    .WithButton("Blue", $"wild-Blue-{special}-{index}", style: ButtonStyle.Primary)
-                    .WithButton("Yellow", $"wild-Yellow-{special}-{index}", style: ButtonStyle.Secondary, emote: new Emoji("🟨"))
+                    .WithButton("Red", $"wild-Red-{special}-{index}", style: ButtonStyle.Secondary, new Emoji("🟥"))
+                    .WithButton("Green", $"wild-Green-{special}-{index}", style: ButtonStyle.Secondary, new Emoji("🟩"))
+                    .WithButton("Blue", $"wild-Blue-{special}-{index}", style: ButtonStyle.Secondary, new Emoji("🟦"))
+                    .WithButton("Yellow", $"wild-Yellow-{special}-{index}", style: ButtonStyle.Secondary, new Emoji("🟨"))
                     .WithButton("Cancel", "cancelwild", style: ButtonStyle.Secondary)
                     .Build();
             });
