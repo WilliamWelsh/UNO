@@ -26,7 +26,7 @@ namespace UNO
             await _client.LoginAsync(TokenType.Bot, System.Environment.GetEnvironmentVariable("UnoDiscordBotToken"));
             await _client.StartAsync();
 
-            await _client.SetGameAsync("UNO");
+            await _client.SetGameAsync("/uno");
 
             _client.InteractionCreated += OnInteractionCreated;
             _client.Ready += OnReady;
@@ -60,7 +60,7 @@ namespace UNO
             }
         }
 
-        private async Task UpdateBotStatus() => await _client.SetGameAsync($"UNO on {_client.Guilds.Count} servers");
+        private async Task UpdateBotStatus() => await _client.SetGameAsync($"/uno on {_client.Guilds.Count} servers");
 
         private async Task OnInteractionCreated(SocketInteraction interaction)
         {
