@@ -76,7 +76,9 @@ namespace UNO
                             break;
 
                         case "cards":
-                            await _gameManager.TryToShowCardMenu(slashCommand);
+                            await slashCommand.RespondAsync("Please click the button below 😀", component: new ComponentBuilder()
+                                .WithButton("Click here to view your cards", "showcardmenu", style: ButtonStyle.Secondary)
+                                .Build(), ephemeral: true);
                             break;
 
                         default:
@@ -86,6 +88,12 @@ namespace UNO
 
                 // Button Commands
                 case SocketMessageComponent messageCommand:
+
+                    // Initial button on /cards
+                    // I have this extra button to force a reference to the
+                    // menu to be created
+                    if (messageCommand.Data.CustomId == "showcardmenu")
+                        await _gameManager.TryToShowCardMenu(messageCommand);
 
                     // Join Game Button
                     if (messageCommand.Data.CustomId.StartsWith("join-"))
@@ -103,7 +111,7 @@ namespace UNO
                     else if (messageCommand.Data.CustomId.StartsWith("cancel-"))
                         await _gameManager.TryToCancelGame(messageCommand);
 
-                    // Card Buttons
+                    // Card Buttons in /cards
                     else if (messageCommand.Data.CustomId.StartsWith("card"))
                         await _gameManager.TryToPlayCard(messageCommand);
 

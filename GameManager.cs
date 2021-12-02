@@ -286,26 +286,6 @@ namespace UNO
         }
 
         /// <summary>
-        /// Try to show the card menu
-        /// </summary>
-        public async Task TryToShowCardMenu(SocketSlashCommand command)
-        {
-            // Check if there's a game in this channel
-            if (!await command.CheckForGameInThisChannel(ActiveGames))
-                return;
-
-            // Get the game object
-            var game = command.GetGameInThisChannel(ActiveGames);
-
-            // Check if player is in the game
-            if (!await game.CheckIfPlayerIsInThisGame(command))
-                return;
-
-            // Show the card menu
-            await game.GetPlayerFromCommand(command).ShowCardMenu(command);
-        }
-
-        /// <summary>
         /// Try to play a card during the game
         /// </summary>
         public async Task TryToPlayCard(SocketMessageComponent command)
@@ -339,8 +319,11 @@ namespace UNO
                 return;
 
             // Check if this card be played
-            if (!await player.CheckIfCardCanBePlayed(command, inputCard))
+            if (!player.CheckIfCardCanBePlayed(inputCard))
+            {
+                await player.UpdateCardMenu(command, "That card cannot be played. Please select a different card");
                 return;
+            }
 
             // If it's a Wild card, then show the menu to select a color
             if (inputCard.Special == Types.Special.Wild || inputCard.Special == Types.Special.WildPlusFour)
@@ -418,8 +401,11 @@ namespace UNO
             Console.WriteLine(inputCard.Special);
 
             // Check if this card be played
-            if (!await player.CheckIfCardCanBePlayed(command, inputCard))
+            if (!player.CheckIfCardCanBePlayed(inputCard))
+            {
+                await player.UpdateCardMenu(command, "That card cannot be played. Please select a different card");
                 return;
+            }
 
             // Play the card
             await player.PlayCard(command, inputCard, Convert.ToInt32(args[3]));
@@ -519,6 +505,30 @@ namespace UNO
             });
 
             ActiveGames.Remove(game);
+        }
+
+        /// <summary>
+        /// Try to show a card menu
+        /// </summary>
+        public async Task TryToShowCardMenu(SocketMessageComponent command)
+        {
+            // Check if there's a game in this channel
+            if (!await command.CheckForGameInThisChannel(ActiveGames))
+                return;
+
+            // Get the game object
+            var game = command.GetGameInThisChannel(ActiveGames);
+
+            // Check if player is in the game
+            if (!await game.CheckIfPlayerIsInThisGame(command))
+                return;
+
+            // Check if the game has started yet
+            if (!await game.CheckIfGameHasStarted(command))
+                return;
+
+            // Show their regular cards
+            await game.GetPlayerFromCommand(command).UpdateCardMenu(command);
         }
     }
 }

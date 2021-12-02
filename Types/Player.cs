@@ -43,6 +43,11 @@ namespace UNO.Types
                 AddNewCard();
         }
 
+        private bool isItMyTurn()
+        {
+            return Game.Players[Game.CurrentPlayerIndex] == this;
+        }
+
         /// <summary>
         /// Add a random card and sort the deck
         /// </summary>
@@ -94,7 +99,7 @@ namespace UNO.Types
                 await Game.DoTurn(Game.CurrentCard);
             }
             else
-                await UpdateCardMenu(command, $"You drew a {newCard}. It's still your turn.");
+                await UpdateCardMenu(command, $"You drew a {newCard}.");
         }
 
         /// <summary>
@@ -131,39 +136,13 @@ namespace UNO.Types
         private int RandomDiscriminator() => Random.Next(0, 1000000000);
 
         /// <summary>
-        /// Show the player's cards and options
+        /// When the player does /cards
         /// </summary>
-        public async Task ShowCardMenu(SocketSlashCommand command)
+        public async Task ShowInitialCardMenu(SocketSlashCommand command)
         {
-            var buttons = new ComponentBuilder();
-
-            var row = 0;
-            var count = 0;
-            var index = 0;
-
-            foreach (var card in Deck)
-            {
-                buttons.WithButton(card.ToString(), $"card{RandomDiscriminator()}-{Game.Host.User.Id}-{card.Color}-{card.Number}-{card.Special}-{index}", style: ButtonStyle.Secondary, row: row, emote: card.GetColorEmoji());
-
-                count++;
-                index++;
-
-                if (count == 6)
-                {
-                    count = 0;
-                    row++;
-                }
-            }
-
-            // Add the draw card button
-            buttons.WithButton("Draw Card", "drawcard", style: ButtonStyle.Secondary, row: row);
-
-            await command.RespondAsync(embed: new EmbedBuilder()
-                .WithColor(Colors.Red)
-                .WithDescription($"You have {Deck.Count} cards.")
-                .Build(),
-                ephemeral: true,
-                component: buttons.Build());
+            await command.RespondAsync(component: new ComponentBuilder()
+                .WithButton("Click here to view your cards", "showcardmenu", style: ButtonStyle.Secondary)
+                .Build());
         }
 
         /// <summary>
@@ -171,6 +150,9 @@ namespace UNO.Types
         /// </summary>
         public async Task UpdateCardMenu(SocketMessageComponent command, string extraMessage = "")
         {
+            Console.WriteLine("hi");
+            Console.WriteLine(isItMyTurn());
+
             var buttons = new ComponentBuilder();
 
             var row = 0;
@@ -179,7 +161,7 @@ namespace UNO.Types
 
             foreach (var card in Deck)
             {
-                buttons.WithButton(card.ToString(), $"card{RandomDiscriminator()}-{Game.Host.User.Id}-{card.Color}-{card.Number}-{card.Special}-{index}", style: ButtonStyle.Secondary, row: row, emote: card.GetColorEmoji());
+                buttons.WithButton(card.ToString(), $"card{RandomDiscriminator()}-{Game.Host.User.Id}-{card.Color}-{card.Number}-{card.Special}-{index}", style: ButtonStyle.Secondary, row: row, emote: card.GetColorEmoji(), disabled: !isItMyTurn() || !CheckIfCardCanBePlayed(card));
 
                 count++;
                 index++;
@@ -192,7 +174,7 @@ namespace UNO.Types
             }
 
             // Add the draw card button
-            buttons.WithButton("Draw Card", "drawcard", style: ButtonStyle.Secondary, row: row);
+            buttons.WithButton("Draw Card", "drawcard", style: ButtonStyle.Secondary, row: row, disabled: !isItMyTurn());
 
             if (extraMessage != "")
                 extraMessage = $"\n\n**{extraMessage}**";
@@ -204,8 +186,8 @@ namespace UNO.Types
                     await CardMenuMessage.ModifyOriginalResponseAsync(m =>
                     {
                         m.Embed = new EmbedBuilder()
-                            .WithColor(Colors.Red)
-                            .WithDescription($"You have {Deck.Count} cards.{extraMessage}")
+                            .WithColor(isItMyTurn() ? Colors.Green : Colors.Red)
+                            .WithDescription($"You have {Deck.Count} cards.{extraMessage}{(isItMyTurn() ? "\n\nIt's your turn." : "")}")
                             .Build();
 
                         m.Components = buttons.Build();
@@ -213,8 +195,7 @@ namespace UNO.Types
                 }
                 catch (Exception e)
                 {
-                    // Ignore
-                    // They probably dismissed the message or something
+                    // Ignore, they probably dismissed the message or something
                     Console.WriteLine(e.Message);
                 }
             }
@@ -224,8 +205,8 @@ namespace UNO.Types
                 await CardMenuMessage.UpdateAsync(m =>
                     {
                         m.Embed = new EmbedBuilder()
-                            .WithColor(Colors.Red)
-                            .WithDescription($"You have {Deck.Count} cards.{extraMessage}")
+                            .WithColor(isItMyTurn() ? Colors.Green : Colors.Red)
+                            .WithDescription($"You have {Deck.Count} cards.{extraMessage}{(isItMyTurn() ? "\n\nIt's your turn." : "")}")
                             .Build();
 
                         m.Components = buttons.Build();
@@ -239,19 +220,17 @@ namespace UNO.Types
         /// <returns>True if it's this player's turn</returns>
         public async Task<bool> CheckIfItsMyTurn(SocketMessageComponent command)
         {
-            if (Game.Players[Game.CurrentPlayerIndex].User.Id != command.User.Id)
-            {
-                await UpdateCardMenu(command, "It's not your turn");
-                return false;
-            }
+            if (isItMyTurn())
+                return true;
 
-            return true;
+            await UpdateCardMenu(command, "It's not your turn");
+            return false;
         }
 
         /// <summary>
         /// Check if this card can be played in the curent game
         /// </summary>
-        public async Task<bool> CheckIfCardCanBePlayed(SocketMessageComponent command, Card inputCard)
+        public bool CheckIfCardCanBePlayed(Card inputCard)
         {
             // Special cards of the same color can be played
             if ((inputCard.Special != Special.None && inputCard.Color == Game.CurrentCard.Color) ||
@@ -262,8 +241,6 @@ namespace UNO.Types
                 // Cards of the same number can be played
                 inputCard.Number == Game.CurrentCard.Number)
                 return true;
-
-            await UpdateCardMenu(command, "That card cannot be played. Please select a different card");
 
             return false;
         }
@@ -276,11 +253,11 @@ namespace UNO.Types
             // Remove the card from the player's deck
             Deck.RemoveAt(index);
 
-            // Update the deck
-            await UpdateCardMenu(command, $"You played a {inputCard.ToString()}");
-
             // Play the card in the game
             await Game.DoTurn(inputCard);
+
+            // Update the deck
+            await UpdateCardMenu(command, $"You played a {inputCard.ToString()}");
         }
 
         /// <summary>

@@ -201,8 +201,6 @@ namespace UNO.Types
             else if (CurrentCard.Special == Special.WildPlusFour)
                 StackToPickUp += 4;
 
-            var currentPlayer = Players[CurrentPlayerIndex];
-
             // Check if this player has to pick up cards
             if (StackToPickUp > 0 && (lastCard.Special == Special.WildPlusTwo || lastCard.Special == Special.WildPlusFour) && CurrentCard.Special != Special.WildPlusTwo && CurrentCard.Special != Special.WildPlusFour)
             {
@@ -212,6 +210,11 @@ namespace UNO.Types
             }
 
             var stackText = StackToPickUp > 0 ? $"\n\nPickup Stack: {StackToPickUp}" : "";
+
+            var currentPlayer = Players[CurrentPlayerIndex];
+
+            // Enable the card buttons on the current player
+            await currentPlayer.UpdateCardMenu(null);
 
             await GameMessage.ModifyAsync(m =>
             {
@@ -323,26 +326,6 @@ namespace UNO.Types
                 if (CurrentPlayerIndex >= Players.Count)
                     CurrentPlayerIndex = 0;
             }
-        }
-
-        /// <summary>
-        /// Check if a card is valid for this turn
-        /// </summary>
-        public bool CheckIfCardCanBePlayed(Card inputCard)
-        {
-            // Any special card can be played
-            if (inputCard.Special != Special.None)
-                return true;
-
-            // Cards of the same color can be played
-            if (inputCard.Color == CurrentCard.Color)
-                return true;
-
-            // Cards of the same number can be played
-            if (inputCard.Number == CurrentCard.Number)
-                return true;
-
-            return false;
         }
 
         /// <summary>
