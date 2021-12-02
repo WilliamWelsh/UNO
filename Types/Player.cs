@@ -150,9 +150,6 @@ namespace UNO.Types
         /// </summary>
         public async Task UpdateCardMenu(SocketMessageComponent command, string extraMessage = "")
         {
-            Console.WriteLine("hi");
-            Console.WriteLine(isItMyTurn());
-
             var buttons = new ComponentBuilder();
 
             var row = 0;
@@ -185,6 +182,8 @@ namespace UNO.Types
                 {
                     await CardMenuMessage.ModifyOriginalResponseAsync(m =>
                     {
+                        m.Content = "";
+
                         m.Embed = new EmbedBuilder()
                             .WithColor(isItMyTurn() ? Colors.Green : Colors.Red)
                             .WithDescription($"You have {Deck.Count} cards.{extraMessage}{(isItMyTurn() ? "\n\nIt's your turn." : "")}")
@@ -204,6 +203,8 @@ namespace UNO.Types
                 CardMenuMessage = command;
                 await CardMenuMessage.UpdateAsync(m =>
                     {
+                        m.Content = "";
+
                         m.Embed = new EmbedBuilder()
                             .WithColor(isItMyTurn() ? Colors.Green : Colors.Red)
                             .WithDescription($"You have {Deck.Count} cards.{extraMessage}{(isItMyTurn() ? "\n\nIt's your turn." : "")}")

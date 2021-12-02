@@ -271,30 +271,22 @@ namespace UNO.Types
         /// <returns>True if someone has won, false otherwise</returns>
         private async Task CheckForWinner()
         {
-            Player winner;
+            Player winner = null;
 
             if (Players.Count == 1)
             {
                 winner = Players[0];
-                await GameMessage.ModifyAsync(m =>
-                {
-                    m.Embed = new EmbedBuilder()
-                        .WithColor(CurrentCard.GetDiscordColor())
-                        .WithAuthor(new EmbedAuthorBuilder()
-                            .WithName(winner.User.Username)
-                            .WithIconUrl(winner.User.GetAvatarUrl() ?? winner.User.GetDefaultAvatarUrl()))
-                        .WithDescription($"{winner.User.Username} has won!{InfoMessage}")
-                        .WithThumbnailUrl(CurrentCard.GetImageUrl())
-                        .Build();
-
-                    m.Components = null;
-                });
                 isGameOver = true;
             }
 
             else if (Players.Any(p => p.Deck.Count == 0))
             {
                 winner = Players.Where(p => p.Deck.Count == 0).First();
+                isGameOver = true;
+            }
+
+            if (isGameOver)
+            {
                 await GameMessage.ModifyAsync(m =>
                 {
                     m.Embed = new EmbedBuilder()
@@ -308,7 +300,6 @@ namespace UNO.Types
 
                     m.Components = null;
                 });
-                isGameOver = true;
             }
         }
 
