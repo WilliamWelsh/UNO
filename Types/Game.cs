@@ -158,6 +158,7 @@ namespace UNO.Types
                     .Build();
 
                 m.Components = new ComponentBuilder()
+                    .WithButton("View Cards", $"showcardprompt", row: 0, style: ButtonStyle.Secondary)
                     .WithButton("Leave Game", $"leaveduringgame", row: 0, style: ButtonStyle.Secondary)
                     .WithButton("End Game", $"endduringgame", row: 0, style: ButtonStyle.Secondary)
                     .Build();
@@ -236,6 +237,7 @@ namespace UNO.Types
                     .Build();
 
                 m.Components = new ComponentBuilder()
+                    .WithButton("View Cards", $"showcardprompt", row: 0, style: ButtonStyle.Secondary)
                     .WithButton("Leave Game", $"leaveduringgame", row: 0, style: ButtonStyle.Secondary)
                     .WithButton("End Game", $"endduringgame", row: 0, style: ButtonStyle.Secondary)
                     .Build();

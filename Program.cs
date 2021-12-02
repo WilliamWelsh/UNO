@@ -44,20 +44,13 @@ namespace UNO
         {
             await UpdateBotStatus();
 
-            // Check if /uno and /cards are registered
-            // and register them if they aren't
-            if ((await _client.GetGlobalApplicationCommandsAsync()).Count != 2)
-            {
+            // Check if /uno is registered
+            // and register it if not
+            if ((await _client.GetGlobalApplicationCommandsAsync()).Count != 1)
                 await _client.CreateGlobalApplicationCommandAsync(new SlashCommandBuilder()
                     .WithName("uno")
                     .WithDescription("Host a new game")
                     .Build());
-
-                await _client.CreateGlobalApplicationCommandAsync(new SlashCommandBuilder()
-                .WithName("cards")
-                .WithDescription("View your cards and options")
-                .Build());
-            }
         }
 
         private async Task UpdateBotStatus() => await _client.SetGameAsync($"/uno on {_client.Guilds.Count} servers");
@@ -75,12 +68,6 @@ namespace UNO
                             await _gameManager.TryToInitializeGame(slashCommand);
                             break;
 
-                        case "cards":
-                            await slashCommand.RespondAsync("Please click the button below 😀", component: new ComponentBuilder()
-                                .WithButton("Click here to view your cards", "showcardmenu", style: ButtonStyle.Secondary)
-                                .Build(), ephemeral: true);
-                            break;
-
                         default:
                             break;
                     }
@@ -89,11 +76,16 @@ namespace UNO
                 // Button Commands
                 case SocketMessageComponent messageCommand:
 
-                    // Initial button on /cards
+                    // Initial button on "View Cards" button
                     // I have this extra button to force a reference to the
                     // menu to be created
                     if (messageCommand.Data.CustomId == "showcardmenu")
                         await _gameManager.TryToShowCardMenu(messageCommand);
+
+                    if (messageCommand.Data.CustomId == "showcardprompt")
+                        await messageCommand.RespondAsync("Please click the button below 😀", component: new ComponentBuilder()
+                                .WithButton("Click here to view your cards", "showcardmenu", style: ButtonStyle.Secondary)
+                                .Build(), ephemeral: true);
 
                     // Join Game Button
                     if (messageCommand.Data.CustomId.StartsWith("join-"))

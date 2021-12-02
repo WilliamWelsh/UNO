@@ -19,7 +19,7 @@ UNO on Discord
 1. Start a new game by doing `/uno`
 2. Wait for at least 1 player to join by pressing the "Join Game" button
 3. Have the host of the game click the "Start Game" button
-4. Do `/cards` to view your cards and options
+4. Click the `View Cards` button to view your cards and options
 5. Have fun!
 
 ![Gif Example](https://raw.githubusercontent.com/WilliamWelsh/UNO/main/gifexample.gif)
