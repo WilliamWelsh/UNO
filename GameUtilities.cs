@@ -6,23 +6,39 @@ namespace UNO
     public static class GameUtilities
     {
         /// <summary>
-        /// Try to find a game in this channel
+        /// Print an error and return an empty RetrieveGame object
         /// </summary>
-        /// <returns>Returns true if there's a game in this channel</returns>
-        public static async Task<bool> CheckForGameInThisChannel(this SocketInteraction interaction, List<Game> activeGames)
+        private static async Task<RetrievedGame> FailToFindAGameWithPlayer(this SocketMessageComponent interaction, string error)
         {
-            if (!activeGames.Any(g => g.ChannelId == interaction.Channel.Id))
-            {
-                await interaction.PrintError("There is no game is this channel.");
-                return false;
-            }
-
-            return true;
+            await interaction.PrintError(error);
+            return new RetrievedGame();
         }
 
         /// <summary>
-        /// Get the game object for this channel
+        /// Searches the current channel for a game, makes sure the commanding user is in it, and that the game has started
         /// </summary>
-        public static Game GetGameInThisChannel(this SocketInteraction interaction, List<Game> activeGames) => activeGames.Where(g => g.ChannelId == interaction.Channel.Id).First();
+        public static async Task<RetrievedGame> TryToFindGameInThisChannelWithUser(this SocketMessageComponent command, List<Game> activeGames)
+        {
+            // Check if there's a game in this channel
+            if (!activeGames.Any(g => g.ChannelId == command.Channel.Id))
+                return await command.FailToFindAGameWithPlayer("There is no game is this channel.");
+
+            // Get the game object
+            var retrievedGame = new RetrievedGame(activeGames.Where(g => g.ChannelId == command.Channel.Id).First());
+
+            // Check if the commanding user is in this game
+            if (!retrievedGame.Game.Players.Any(p => p.User.Id == command.User.Id))
+                return await command.FailToFindAGameWithPlayer("You are not in the game that is currently going on in this channel.");
+
+            // Check if the game has started yet
+            else if (!retrievedGame.Game.hasStarted)
+                return await command.FailToFindAGameWithPlayer("The game has not started yet.");
+
+            // The player is in this game and it's started
+            // We're good to go
+            retrievedGame.SetPlayer(retrievedGame.Game.Players.First(p => p.User.Id == command.User.Id));
+
+            return retrievedGame;
+        }
     }
 }

@@ -192,11 +192,8 @@ namespace UNO.Types
                         m.Components = buttons.Build();
                     });
                 }
-                catch (Exception e)
-                {
-                    // Ignore, they probably dismissed the message or something
-                    Console.WriteLine(e.Message);
-                }
+                // Ignore, they probably dismissed the message or something
+                catch { }
             }
             else
             {

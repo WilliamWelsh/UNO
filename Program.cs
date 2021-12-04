@@ -36,6 +36,8 @@ namespace UNO
             await Task.Delay(Timeout.Infinite);
         }
 
+        private async Task UpdateBotStatus() => await _client.SetGameAsync($"/uno on {_client.Guilds.Count} servers");
+
         private async Task OnLeftGuild(SocketGuild arg) => await UpdateBotStatus();
 
         private async Task OnJoinedGuild(SocketGuild arg) => await UpdateBotStatus();
@@ -52,8 +54,6 @@ namespace UNO
                     .WithDescription("Host a new game")
                     .Build());
         }
-
-        private async Task UpdateBotStatus() => await _client.SetGameAsync($"/uno on {_client.Guilds.Count} servers");
 
         private async Task OnInteractionCreated(SocketInteraction interaction)
         {
@@ -76,16 +76,44 @@ namespace UNO
                 // Button Commands
                 case SocketMessageComponent messageCommand:
 
-                    // Initial button on "View Cards" button
-                    // I have this extra button to force a reference to the
-                    // menu to be created
-                    if (messageCommand.Data.CustomId == "showcardmenu")
-                        await _gameManager.TryToShowCardMenu(messageCommand);
+                    switch (messageCommand.Data.CustomId)
+                    {
+                        // Initial button on "View Cards" button
+                        // I have this extra button to force a reference to the
+                        // menu to be created
+                        case "showcardmenu":
+                            await _gameManager.TryToShowCardMenu(messageCommand);
+                            break;
 
-                    if (messageCommand.Data.CustomId == "showcardprompt")
-                        await messageCommand.RespondAsync("Please click the button below 😀", component: new ComponentBuilder()
+                        case "showcardprompt":
+                            await messageCommand.RespondAsync("Please click the button below 😀", component: new ComponentBuilder()
                                 .WithButton("Click here to view your cards", "showcardmenu", style: ButtonStyle.Secondary)
                                 .Build(), ephemeral: true);
+                            break;
+
+                        // Draw Card Button
+                        case "drawcard":
+                            await _gameManager.TryToDrawCard(messageCommand);
+                            break;
+
+                        // Cancel Wild Menu Button
+                        case "cancelwild":
+                            await _gameManager.TryToCancelWildMenu(messageCommand);
+                            break;
+
+                        // Leave Game Button (during the game)
+                        case "leaveduringgame":
+                            await _gameManager.TryToLeaveDuringGame(messageCommand);
+                            break;
+
+                        // // End Game Button (during the game)
+                        case "endduringgame":
+                            await _gameManager.TryToEndDuringGame(messageCommand);
+                            break;
+
+                        default:
+                            break;
+                    }
 
                     // Join Game Button
                     if (messageCommand.Data.CustomId.StartsWith("join-"))
@@ -107,25 +135,9 @@ namespace UNO
                     else if (messageCommand.Data.CustomId.StartsWith("card"))
                         await _gameManager.TryToPlayCard(messageCommand);
 
-                    // Draw Card Button
-                    else if (messageCommand.Data.CustomId == "drawcard")
-                        await _gameManager.TryToDrawCard(messageCommand);
-
-                    // Cancel Wild Menu Button
-                    else if (messageCommand.Data.CustomId == "cancelwild")
-                        await _gameManager.TryToCancelWildMenu(messageCommand);
-
                     // Wild Card Menu Button
                     else if (messageCommand.Data.CustomId.StartsWith("wild-"))
                         await _gameManager.TryToPlayWildCard(messageCommand);
-
-                    // Leave Game Button (during the game)
-                    else if (messageCommand.Data.CustomId == "leaveduringgame")
-                        await _gameManager.TryToLeaveDuringGame(messageCommand);
-
-                    // End Game Button (during the game)
-                    else if (messageCommand.Data.CustomId == "endduringgame")
-                        await _gameManager.TryToEndDuringGame(messageCommand);
 
                     break;
             }

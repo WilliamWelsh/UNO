@@ -249,7 +249,7 @@ namespace UNO.Types
         /// </summary>
         public async Task RemovePlayerDuringGame(SocketMessageComponent command)
         {
-            var player = GetPlayerFromCommand(command);
+            var player = Players.First(p => p.User.Id == command.User.Id);
 
             Players.Remove(player);
 
@@ -319,39 +319,6 @@ namespace UNO.Types
                 if (CurrentPlayerIndex >= Players.Count)
                     CurrentPlayerIndex = 0;
             }
-        }
-
-        /// <summary>
-        /// Check if a player is in this game
-        /// </summary>
-        /// <returns>True if the player is in this</returns>
-        public async Task<bool> CheckIfPlayerIsInThisGame(SocketInteraction interaction)
-        {
-            if (!Players.Any(p => p.User.Id == interaction.User.Id))
-            {
-                await interaction.PrintError("You are not in the game that is currently going on in this channel.");
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Get the player with the id from a button command
-        /// </summary>
-        public Player GetPlayerFromCommand(SocketInteraction interaction) => Players.First(p => p.User.Id == interaction.User.Id);
-
-        /// <summary>
-        /// Check if the game has started yet
-        /// </summary>
-        public async Task<bool> CheckIfGameHasStarted(SocketMessageComponent command)
-        {
-            if (hasStarted)
-                return true;
-
-            await command.PrintError("The game has not started yet.");
-
-            return false;
         }
     }
 }

@@ -12,7 +12,7 @@ namespace UNO
         /// <summary>
         /// Check if the user is already playing a game, or if they are hosting one already, or if there isn't one in this channel
         /// </summary>
-        public async Task<bool> CanWeStartANewgame(SocketSlashCommand command)
+        private async Task<bool> CanWeStartANewgame(SocketSlashCommand command)
         {
             // Check if there isn't an active game in this channel already
             if (ActiveGames.Any(g => g.ChannelId == command.Channel.Id))
@@ -25,8 +25,6 @@ namespace UNO
                     ActiveGames.Remove(game);
                     return true;
                 }
-
-                Console.WriteLine(game.isGameOver);
 
                 // Check if the game is over
                 if (game.isGameOver)
@@ -290,23 +288,11 @@ namespace UNO
         /// </summary>
         public async Task TryToPlayCard(SocketMessageComponent command)
         {
-            // Check if there's a game in this channel
-            if (!await command.CheckForGameInThisChannel(ActiveGames))
+            // Try to find a valid game in this channel with this suer
+            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
+
+            if (!retrievedGame.hasValidGameAndPlayer)
                 return;
-
-            // Get the game object
-            var game = command.GetGameInThisChannel(ActiveGames);
-
-            // Check if player is in the game
-            if (!await game.CheckIfPlayerIsInThisGame(command))
-                return;
-
-            // Check if the game has started yet
-            if (!await game.CheckIfGameHasStarted(command))
-                return;
-
-            // Get the player
-            var player = game.GetPlayerFromCommand(command);
 
             // Get the data from the customId
             var args = command.Data.CustomId.Split("-");
@@ -315,13 +301,13 @@ namespace UNO
             var inputCard = new Types.Card(args[2], args[3], args[4]);
 
             // Check if it's this player's turn
-            if (!await player.CheckIfItsMyTurn(command))
+            if (!await retrievedGame.Player.CheckIfItsMyTurn(command))
                 return;
 
             // Check if this card be played
-            if (!player.CheckIfCardCanBePlayed(inputCard))
+            if (!retrievedGame.Player.CheckIfCardCanBePlayed(inputCard))
             {
-                await player.UpdateCardMenu(command, "That card cannot be played. Please select a different card");
+                await retrievedGame.Player.UpdateCardMenu(command, "That card cannot be played. Please select a different card");
                 return;
             }
 
@@ -329,12 +315,12 @@ namespace UNO
             if (inputCard.Special == Types.Special.Wild || inputCard.Special == Types.Special.WildPlusFour)
             {
                 // Show the wild card menu
-                await player.ShowWildMenu(command, (Types.Special)Enum.Parse(typeof(Types.Special), args[4]), Convert.ToInt32(args[5]));
+                await retrievedGame.Player.ShowWildMenu(command, (Types.Special)Enum.Parse(typeof(Types.Special), args[4]), Convert.ToInt32(args[5]));
                 return;
             }
 
             // Play the card
-            await player.PlayCard(command, inputCard, Convert.ToInt32(args[5]));
+            await retrievedGame.Player.PlayCard(command, inputCard, Convert.ToInt32(args[5]));
         }
 
         /// <summary>
@@ -342,30 +328,18 @@ namespace UNO
         /// </summary>
         public async Task TryToDrawCard(SocketMessageComponent command)
         {
-            // Check if there's a game in this channel
-            if (!await command.CheckForGameInThisChannel(ActiveGames))
+            // Try to find a valid game in this channel with this suer
+            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
+
+            if (!retrievedGame.hasValidGameAndPlayer)
                 return;
-
-            // Get the game object
-            var game = command.GetGameInThisChannel(ActiveGames);
-
-            // Check if player is in the game
-            if (!await game.CheckIfPlayerIsInThisGame(command))
-                return;
-
-            // Check if the game has started yet
-            if (!await game.CheckIfGameHasStarted(command))
-                return;
-
-            // Get the player
-            var player = game.GetPlayerFromCommand(command);
 
             // Check if it's this player's turn
-            if (!await player.CheckIfItsMyTurn(command))
+            if (!await retrievedGame.Player.CheckIfItsMyTurn(command))
                 return;
 
             // Have them draw a card
-            await player.DrawCard(command);
+            await retrievedGame.Player.DrawCard(command);
         }
 
         /// <summary>
@@ -373,42 +347,29 @@ namespace UNO
         /// </summary>
         public async Task TryToPlayWildCard(SocketMessageComponent command)
         {
-            // Check if there's a game in this channel
-            if (!await command.CheckForGameInThisChannel(ActiveGames))
+            // Try to find a valid game in this channel with this suer
+            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
+
+            if (!retrievedGame.hasValidGameAndPlayer)
                 return;
-
-            // Get the game
-            var game = command.GetGameInThisChannel(ActiveGames);
-
-            // Check if player is in the game
-            if (!await game.CheckIfPlayerIsInThisGame(command))
-                return;
-
-            // Check if the game has started yet
-            if (!await game.CheckIfGameHasStarted(command))
-                return;
-
-            // Get the player
-            var player = game.GetPlayerFromCommand(command);
 
             // Check if it's this player's turn
-            if (!await player.CheckIfItsMyTurn(command))
+            if (!await retrievedGame.Player.CheckIfItsMyTurn(command))
                 return;
 
             var args = command.Data.CustomId.Split("-");
 
             var inputCard = new Types.Card(args[1], "", args[2]);
-            Console.WriteLine(inputCard.Special);
 
             // Check if this card be played
-            if (!player.CheckIfCardCanBePlayed(inputCard))
+            if (!retrievedGame.Player.CheckIfCardCanBePlayed(inputCard))
             {
-                await player.UpdateCardMenu(command, "That card cannot be played. Please select a different card");
+                await retrievedGame.Player.UpdateCardMenu(command, "That card cannot be played. Please select a different card");
                 return;
             }
 
             // Play the card
-            await player.PlayCard(command, inputCard, Convert.ToInt32(args[3]));
+            await retrievedGame.Player.PlayCard(command, inputCard, Convert.ToInt32(args[3]));
         }
 
         /// <summary>
@@ -416,30 +377,18 @@ namespace UNO
         /// </summary>
         public async Task TryToCancelWildMenu(SocketMessageComponent command)
         {
-            // Check if there's a game in this channel
-            if (!await command.CheckForGameInThisChannel(ActiveGames))
+            // Try to find a valid game in this channel with this suer
+            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
+
+            if (!retrievedGame.hasValidGameAndPlayer)
                 return;
-
-            // Get the game object
-            var game = command.GetGameInThisChannel(ActiveGames);
-
-            // Check if player is in the game
-            if (!await game.CheckIfPlayerIsInThisGame(command))
-                return;
-
-            // Check if the game has started yet
-            if (!await game.CheckIfGameHasStarted(command))
-                return;
-
-            // Get the player
-            var player = game.GetPlayerFromCommand(command);
 
             // Check if it's this player's turn
-            if (!await player.CheckIfItsMyTurn(command))
+            if (!await retrievedGame.Player.CheckIfItsMyTurn(command))
                 return;
 
             // Show their regular cards
-            await player.UpdateCardMenu(command);
+            await retrievedGame.Player.UpdateCardMenu(command);
         }
 
         /// <summary>
@@ -447,22 +396,17 @@ namespace UNO
         /// </summary>
         public async Task TryToLeaveDuringGame(SocketMessageComponent command)
         {
-            // Check if there's a game in this channel
-            if (!await command.CheckForGameInThisChannel(ActiveGames))
-                return;
+            // Try to find a valid game in this channel with this suer
+            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
 
-            // Get the game object
-            var game = command.GetGameInThisChannel(ActiveGames);
-
-            // Check if player is in the game
-            if (!await game.CheckIfPlayerIsInThisGame(command))
+            if (!retrievedGame.hasValidGameAndPlayer)
                 return;
 
             // Remove the player
-            await game.RemovePlayerDuringGame(command);
+            await retrievedGame.Game.RemovePlayerDuringGame(command);
 
-            if (game.isGameOver)
-                ActiveGames.Remove(game);
+            if (retrievedGame.Game.isGameOver)
+                ActiveGames.Remove(retrievedGame.Game);
         }
 
         /// <summary>
@@ -470,24 +414,16 @@ namespace UNO
         /// </summary>
         public async Task TryToEndDuringGame(SocketMessageComponent command)
         {
-            // Check if there's a game in this channel
-            if (!await command.CheckForGameInThisChannel(ActiveGames))
+            // Try to find a valid game in this channel with this suer
+            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
+
+            if (!retrievedGame.hasValidGameAndPlayer)
                 return;
-
-            // Get the game object
-            var game = command.GetGameInThisChannel(ActiveGames);
-
-            // Check if player is in the game
-            if (!await game.CheckIfPlayerIsInThisGame(command))
-                return;
-
-            // Get the player
-            var player = game.GetPlayerFromCommand(command);
 
             // Check if they're host
-            if (game.Host.User.Id != player.User.Id)
+            if (retrievedGame.Game.Host.User.Id != retrievedGame.Player.User.Id)
             {
-                await command.PrintError($"Only the host ({game.Host.User.Username}) can end the game.");
+                await command.PrintError($"Only the host ({retrievedGame.Game.Host.User.Username}) can end the game.");
                 return;
             }
 
@@ -498,13 +434,13 @@ namespace UNO
                     .WithColor(Colors.Red)
                     .WithAuthor(new EmbedAuthorBuilder()
                         .WithName($"UNO"))
-                    .WithDescription($"{game.Host.User.Username} has ended the game.\n\nIf you want to start a new game in this channel, do `/uno`")
+                    .WithDescription($"{retrievedGame.Game.Host.User.Username} has ended the game.\n\nIf you want to start a new game in this channel, do `/uno`")
                     .Build();
 
                 m.Components = null;
             });
 
-            ActiveGames.Remove(game);
+            ActiveGames.Remove(retrievedGame.Game);
         }
 
         /// <summary>
@@ -512,23 +448,14 @@ namespace UNO
         /// </summary>
         public async Task TryToShowCardMenu(SocketMessageComponent command)
         {
-            // Check if there's a game in this channel
-            if (!await command.CheckForGameInThisChannel(ActiveGames))
-                return;
+            // Try to find a valid game in this channel with this suer
+            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
 
-            // Get the game object
-            var game = command.GetGameInThisChannel(ActiveGames);
-
-            // Check if player is in the game
-            if (!await game.CheckIfPlayerIsInThisGame(command))
-                return;
-
-            // Check if the game has started yet
-            if (!await game.CheckIfGameHasStarted(command))
+            if (!retrievedGame.hasValidGameAndPlayer)
                 return;
 
             // Show their regular cards
-            await game.GetPlayerFromCommand(command).UpdateCardMenu(command);
+            await retrievedGame.Player.UpdateCardMenu(command);
         }
     }
 }
