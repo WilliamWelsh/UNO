@@ -40,6 +40,22 @@ namespace UNO
             // Check if they're hosting any games
             if (ActiveGames.Any(g => g.Host.User.Id == command.User.Id))
             {
+                var game = ActiveGames.Where(g => g.Host.User.Id == command.User.Id).First();
+
+                // Check if the game is old
+                if (game.isGameInActive())
+                {
+                    ActiveGames.Remove(game);
+                    return true;
+                }
+
+                // Check if the game is over
+                if (game.isGameOver)
+                {
+                    ActiveGames.Remove(game);
+                    return true;
+                }
+
                 await command.PrintError("You are already hosting a game. Either finish that game, or close it.\n\nYou can end a game by pressing the \"End Game\" button.");
                 return false;
             }
@@ -47,6 +63,22 @@ namespace UNO
             // Check if they're playing any games
             if (ActiveGames.Any(g => g.Players.Any(p => p.User.Id == command.User.Id)))
             {
+                var game = ActiveGames.Where(g => g.Host.User.Id == command.User.Id).First();
+
+                // Check if the game is old
+                if (game.isGameInActive())
+                {
+                    ActiveGames.Remove(game);
+                    return true;
+                }
+
+                // Check if the game is over
+                if (game.isGameOver)
+                {
+                    ActiveGames.Remove(game);
+                    return true;
+                }
+
                 await command.PrintError("You are already playing a game. Either finish that game, or leave it.\n\nYou can leave a game by pressing the \"Leave Game\" button on.");
                 return false;
             }
