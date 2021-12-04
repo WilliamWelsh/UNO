@@ -150,12 +150,6 @@ namespace UNO.Types
         /// </summary>
         public async Task UpdateCardMenu(SocketMessageComponent command, string extraMessage = "")
         {
-            if (Game.isGameOver)
-            {
-                await ShowEndGameCardMenu();
-                return;
-            }
-
             var buttons = new ComponentBuilder();
 
             var row = 0;
@@ -261,7 +255,8 @@ namespace UNO.Types
             await Game.DoTurn(inputCard);
 
             // Update the deck
-            await UpdateCardMenu(command, $"You played a {inputCard.ToString()}");
+            if (!Game.isGameOver)
+                await UpdateCardMenu(command, $"You played a {inputCard.ToString()}");
         }
 
         /// <summary>
