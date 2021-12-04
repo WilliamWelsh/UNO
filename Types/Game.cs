@@ -302,6 +302,9 @@ namespace UNO.Types
 
                     m.Components = null;
                 });
+
+                foreach (var player in Players)
+                    await player.ShowEndGameCardMenu();
             }
         }
 

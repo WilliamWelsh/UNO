@@ -28,7 +28,7 @@ namespace UNO.Types
         /// <summary>
         /// The ephemeral card menu message
         /// </summary>
-        private SocketMessageComponent CardMenuMessage { get; set; }
+        public SocketMessageComponent CardMenuMessage { get; set; }
 
         public Player(SocketUser user, Random rnd, Game game)
         {
@@ -150,6 +150,12 @@ namespace UNO.Types
         /// </summary>
         public async Task UpdateCardMenu(SocketMessageComponent command, string extraMessage = "")
         {
+            if (Game.isGameOver)
+            {
+                await ShowEndGameCardMenu();
+                return;
+            }
+
             var buttons = new ComponentBuilder();
 
             var row = 0;
@@ -278,6 +284,23 @@ namespace UNO.Types
                     .WithButton("Cancel", "cancelwild", style: ButtonStyle.Secondary)
                     .Build();
             });
+        }
+
+        /// <summary>
+        /// Removes the game cards because the game is over
+        /// </summary>
+        public async Task ShowEndGameCardMenu()
+        {
+            try
+            {
+                await CardMenuMessage.ModifyOriginalResponseAsync(x =>
+                {
+                    x.Content = "The game is over, I hope you had fun 😊";
+                    x.Embed = null;
+                    x.Components = new ComponentBuilder().Build();
+                });
+            }
+            catch { }
         }
     }
 }
