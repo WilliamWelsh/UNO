@@ -237,7 +237,7 @@ namespace UNO.Types
                 // Wild Cards
                 (inputCard.Special == Special.Wild || inputCard.Special == Special.WildPlusFour) ||
                 // Cards of the same number can be played
-                inputCard.Number == Game.CurrentCard.Number)
+                inputCard.Number == Game.CurrentCard.Number && inputCard.Number != "")
                 return true;
 
             return false;
