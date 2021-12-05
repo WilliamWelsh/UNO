@@ -1,5 +1,8 @@
-﻿using Discord;
+﻿using System.Reflection;
+using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace UNO
 {
@@ -9,19 +12,27 @@ namespace UNO
 
         private DiscordSocketClient _client;
 
+        private InteractionService _commands;
+
+        private IServiceProvider _services;
+
         private GameManager _gameManager;
 
         public async Task MainAsync()
         {
+            _services = ConfigureServices();
+
             _gameManager = new GameManager();
 
-            _client = new DiscordSocketClient(new DiscordSocketConfig
-            {
-                LogLevel = LogSeverity.Verbose,
-                GatewayIntents = GatewayIntents.Guilds
-            });
+            _client = _services.GetRequiredService<DiscordSocketClient>();
+
+            _commands = _services.GetRequiredService<InteractionService>();
+
+            // Add the public modules that inherit InteractionModuleBase<T> to the InteractionService
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
             _client.Log += LogAsync;
+            _commands.Log += LogAsync;
 
             await _client.LoginAsync(TokenType.Bot, System.Environment.GetEnvironmentVariable("UnoDiscordBotToken"));
             await _client.StartAsync();
@@ -46,100 +57,22 @@ namespace UNO
         {
             await UpdateBotStatus();
 
-            // Check if /uno is registered
-            // and register it if not
-            if ((await _client.GetGlobalApplicationCommandsAsync()).Count != 1)
-                await _client.CreateGlobalApplicationCommandAsync(new SlashCommandBuilder()
-                    .WithName("uno")
-                    .WithDescription("Host a new game")
-                    .Build());
+            // Uncomment this to register commands (should only be run once, not everytime it starts)
+            //await _commands.RegisterCommandsGloballyAsync();
         }
 
         private async Task OnInteractionCreated(SocketInteraction interaction)
         {
-            switch (interaction)
+            try
             {
-                // Slash Commands
-                case SocketSlashCommand slashCommand:
-
-                    switch (slashCommand.CommandName)
-                    {
-                        case "uno":
-                            await _gameManager.TryToInitializeGame(slashCommand);
-                            break;
-
-                        default:
-                            break;
-                    }
-                    break;
-
-                // Button Commands
-                case SocketMessageComponent messageCommand:
-
-                    switch (messageCommand.Data.CustomId)
-                    {
-                        // Initial button on "View Cards" button
-                        // I have this extra button to force a reference to the
-                        // menu to be created
-                        case "showcardmenu":
-                            await _gameManager.TryToShowCardMenu(messageCommand);
-                            break;
-
-                        case "showcardprompt":
-                            await messageCommand.RespondAsync("Please click the button below 😀", component: new ComponentBuilder()
-                                .WithButton("Click here to view your cards", "showcardmenu", style: ButtonStyle.Secondary)
-                                .Build(), ephemeral: true);
-                            break;
-
-                        // Draw Card Button
-                        case "drawcard":
-                            await _gameManager.TryToDrawCard(messageCommand);
-                            break;
-
-                        // Cancel Wild Menu Button
-                        case "cancelwild":
-                            await _gameManager.TryToCancelWildMenu(messageCommand);
-                            break;
-
-                        // Leave Game Button (during the game)
-                        case "leaveduringgame":
-                            await _gameManager.TryToLeaveDuringGame(messageCommand);
-                            break;
-
-                        // // End Game Button (during the game)
-                        case "endduringgame":
-                            await _gameManager.TryToEndDuringGame(messageCommand);
-                            break;
-
-                        default:
-                            break;
-                    }
-
-                    // Join Game Button
-                    if (messageCommand.Data.CustomId.StartsWith("join-"))
-                        await _gameManager.TryToJoinGame(messageCommand);
-
-                    // Leave Game Button
-                    else if (messageCommand.Data.CustomId.StartsWith("leave-"))
-                        await _gameManager.TryToLeaveGame(messageCommand);
-
-                    // Start Game Button
-                    else if (messageCommand.Data.CustomId.StartsWith("start-"))
-                        await _gameManager.TroToStartGame(messageCommand);
-
-                    // Cancel Game Button
-                    else if (messageCommand.Data.CustomId.StartsWith("cancel-"))
-                        await _gameManager.TryToCancelGame(messageCommand);
-
-                    // Card Buttons in /cards
-                    else if (messageCommand.Data.CustomId.StartsWith("card"))
-                        await _gameManager.TryToPlayCard(messageCommand);
-
-                    // Wild Card Menu Button
-                    else if (messageCommand.Data.CustomId.StartsWith("wild-"))
-                        await _gameManager.TryToPlayWildCard(messageCommand);
-
-                    break;
+                // Create an execution context that matches the generic type parameter of
+                // the InteractionModuleBase<T> module
+                var ctx = new SocketInteractionContext(_client, interaction);
+                await _commands.ExecuteCommandAsync(ctx, _services);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
 
@@ -147,6 +80,19 @@ namespace UNO
         {
             Console.WriteLine(log.ToString());
             return Task.CompletedTask;
+        }
+
+        ServiceProvider ConfigureServices()
+        {
+            return new ServiceCollection()
+                .AddSingleton<DiscordSocketClient>(x => new DiscordSocketClient(new DiscordSocketConfig
+                {
+                    LogLevel = LogSeverity.Verbose,
+                    GatewayIntents = GatewayIntents.Guilds
+                }))
+                .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
+                .AddSingleton<GameManager>()
+                .BuildServiceProvider();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace UNO
         /// <summary>
         /// Check if the user is already playing a game, or if they are hosting one already, or if there isn't one in this channel
         /// </summary>
-        private async Task<bool> CanWeStartANewgame(SocketSlashCommand command)
+        private async Task<bool> CanWeStartANewgame(SocketInteraction command)
         {
             // Check if there isn't an active game in this channel already
             if (ActiveGames.Any(g => g.ChannelId == command.Channel.Id))
@@ -89,7 +89,7 @@ namespace UNO
         /// <summary>
         /// Initialize a new game
         /// </summary>
-        public async Task TryToInitializeGame(SocketSlashCommand command)
+        public async Task TryToInitializeGame(SocketInteraction command)
         {
             // Check if they are able to host a new game
             if (!(await CanWeStartANewgame(command)))
@@ -97,13 +97,13 @@ namespace UNO
 
             var game = new Types.Game(command.User, command.Channel.Id);
 
-            await command.RespondAsync(embed: new EmbedBuilder()
+            await command.RespondAsync("Started a new game", embed: new EmbedBuilder()
                     .WithColor(Colors.Red)
                     .WithAuthor(new EmbedAuthorBuilder()
                         .WithName("UNO"))
                     .WithDescription($"{game.Host.User.Username} has started a game of UNO! Click the button below to join!\n\n{game.ListPlayers()}")
                     .Build(),
-                component: new ComponentBuilder()
+                components: new ComponentBuilder()
                     .WithButton("Start Game", $"start-{command.User.Id}", row: 0, style: ButtonStyle.Secondary, disabled: true)
                     .WithButton("Cancel Game", $"cancel-{command.User.Id}", row: 0, style: ButtonStyle.Secondary)
                     .WithButton("Join Game", $"join-{command.User.Id}", row: 1, style: ButtonStyle.Secondary)
@@ -116,11 +116,9 @@ namespace UNO
         /// <summary>
         /// Try to join a game
         /// </summary>
-        public async Task TryToJoinGame(SocketMessageComponent command)
+        public async Task TryToJoinGame(SocketMessageComponent command, ulong hostId)
         {
-            // Get the Hot's id
-            var hostId = Convert.ToUInt64(command.Data.CustomId.Split('-')[1]);
-
+            Console.WriteLine(hostId);
             // Check if that game is still valid
             if (!ActiveGames.Any(g => g.Host.User.Id == hostId))
             {
@@ -185,11 +183,8 @@ namespace UNO
         /// <summary>
         /// Try to leave a game
         /// </summary>
-        public async Task TryToLeaveGame(SocketMessageComponent command)
+        public async Task TryToLeaveGame(SocketMessageComponent command, ulong hostId)
         {
-            // Get the Hot's id
-            var hostId = Convert.ToUInt64(command.Data.CustomId.Split('-')[1]);
-
             // Check if that game is still valid
             if (!ActiveGames.Any(g => g.Host.User.Id == hostId))
             {
@@ -241,12 +236,9 @@ namespace UNO
         /// <summary>
         /// Cancel the game creation
         /// </summary>
-        public async Task TryToCancelGame(SocketMessageComponent command)
+        public async Task TryToCancelGame(SocketMessageComponent command, ulong hostId)
         {
             var canCancel = true;
-
-            // Get the Hot's id
-            var hostId = Convert.ToUInt64(command.Data.CustomId.Split('-')[1]);
 
             // Check if that game is still valid
             if (!ActiveGames.Any(g => g.Host.User.Id == hostId))
@@ -287,11 +279,8 @@ namespace UNO
         /// <summary>
         /// Start the game
         /// </summary>
-        public async Task TroToStartGame(SocketMessageComponent command)
+        public async Task TryToStartGame(SocketMessageComponent command, ulong hostId)
         {
-            // Get the Host's id
-            var hostId = Convert.ToUInt64(command.Data.CustomId.Split('-')[1]);
-
             // Check if that game is still valid
             if (!ActiveGames.Any(g => g.Host.User.Id == hostId))
             {
@@ -318,7 +307,7 @@ namespace UNO
         /// <summary>
         /// Try to play a card during the game
         /// </summary>
-        public async Task TryToPlayCard(SocketMessageComponent command)
+        public async Task TryToPlayCard(SocketMessageComponent command, ulong hostId, string color, string number, string special, int index)
         {
             // Try to find a valid game in this channel with this suer
             var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
@@ -326,11 +315,7 @@ namespace UNO
             if (!retrievedGame.hasValidGameAndPlayer)
                 return;
 
-            // Get the data from the customId
-            var args = command.Data.CustomId.Split("-");
-            var hostId = args[1];
-
-            var inputCard = new Types.Card(args[2], args[3], args[4]);
+            var inputCard = new Types.Card(color, number, special);
 
             // Check if it's this player's turn
             if (!await retrievedGame.Player.CheckIfItsMyTurn(command))
@@ -347,12 +332,12 @@ namespace UNO
             if (inputCard.Special == Types.Special.Wild || inputCard.Special == Types.Special.WildPlusFour)
             {
                 // Show the wild card menu
-                await retrievedGame.Player.ShowWildMenu(command, (Types.Special)Enum.Parse(typeof(Types.Special), args[4]), Convert.ToInt32(args[5]));
+                await retrievedGame.Player.ShowWildMenu(command, (Types.Special)Enum.Parse(typeof(Types.Special), special), index);
                 return;
             }
 
             // Play the card
-            await retrievedGame.Player.PlayCard(command, inputCard, Convert.ToInt32(args[5]));
+            await retrievedGame.Player.PlayCard(command, inputCard, index);
         }
 
         /// <summary>
@@ -377,7 +362,7 @@ namespace UNO
         /// <summary>
         /// Try to play a wild card
         /// </summary>
-        public async Task TryToPlayWildCard(SocketMessageComponent command)
+        public async Task TryToPlayWildCard(SocketMessageComponent command, string color, string special, int index)
         {
             // Try to find a valid game in this channel with this suer
             var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);

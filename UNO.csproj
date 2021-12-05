@@ -6,6 +6,7 @@
     <Nullable>disable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Discord.Net.Labs" Version="3.4.7"/>
+    <PackageReference Include="Discord.Net.Labs" Version="3.4.8"/>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0"/>
   </ItemGroup>
 </Project>
