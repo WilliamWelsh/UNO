@@ -16,13 +16,9 @@ namespace UNO
 
         private IServiceProvider _services;
 
-        private GameManager _gameManager;
-
         public async Task MainAsync()
         {
             _services = ConfigureServices();
-
-            _gameManager = new GameManager();
 
             _client = _services.GetRequiredService<DiscordSocketClient>();
 
