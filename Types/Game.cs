@@ -116,7 +116,7 @@ namespace UNO.Types
             var result = new StringBuilder();
 
             foreach (var player in Players)
-                result.AppendLine($"{(player == Host ? "👑" : "👤")} {player.User.Username}");
+                result.AppendLine($"{(player == Host ? "👑" : "👤")} {player.User.Username} {(player.Deck.Count == 1 ? "**UNO!**" : "")}");
 
             if (highlightCurrent)
                 result.Replace(Players[CurrentPlayerIndex].User.Username, $"**{Players[CurrentPlayerIndex].User.Username}**");

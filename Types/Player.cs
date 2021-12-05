@@ -236,6 +236,8 @@ namespace UNO.Types
                 inputCard.Color == Game.CurrentCard.Color ||
                 // Wild Cards
                 (inputCard.Special == Special.Wild || inputCard.Special == Special.WildPlusFour) ||
+                // Special cards of the same type
+                inputCard.Special == Game.CurrentCard.Special && inputCard.Special != Special.None ||
                 // Cards of the same number can be played
                 inputCard.Number == Game.CurrentCard.Number && inputCard.Number != "")
                 return true;
@@ -267,7 +269,7 @@ namespace UNO.Types
             await command.UpdateAsync(m =>
             {
                 m.Embed = new EmbedBuilder()
-                    .WithColor(Colors.Red)
+                    .WithColor(Colors.Green)
                     .WithDescription("Select a color for this Wild card.")
                     .Build();
 
