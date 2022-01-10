@@ -145,7 +145,7 @@ namespace UNO.Types
                     .WithAuthor(new EmbedAuthorBuilder()
                         .WithName($"{currentPlayer.User.Username}'s Turn")
                         .WithIconUrl(currentPlayer.User.GetAvatarUrl() ?? currentPlayer.User.GetDefaultAvatarUrl()))
-                    .WithDescription($"It's {currentPlayer.User.Username}'s turn.\n\nPress the `View Cards` button below to view your cards.{InfoMessage}")
+                    .WithDescription($"It's {currentPlayer.User.Username}'s turn.\n\n**Press the `View Cards` button below to view your cards.**{InfoMessage}")
                     .WithThumbnailUrl(CurrentCard.GetImageUrl())
                     .WithFields(new EmbedFieldBuilder[]
                     {
@@ -224,7 +224,7 @@ namespace UNO.Types
                     .WithAuthor(new EmbedAuthorBuilder()
                         .WithName($"{currentPlayer.User.Username}'s Turn")
                         .WithIconUrl(currentPlayer.User.GetAvatarUrl() ?? currentPlayer.User.GetDefaultAvatarUrl()))
-                    .WithDescription($"{previousPlayer.User.Username} played a {CurrentCard.ToString()}.{stackText}\n\nPress the `View Cards` button below to view your cards.{InfoMessage}")
+                    .WithDescription($"{previousPlayer.User.Username} played a {CurrentCard.ToString()}.{stackText}{InfoMessage}")
                     .WithThumbnailUrl(CurrentCard.GetImageUrl())
                     .WithFields(new EmbedFieldBuilder[]
                     {
