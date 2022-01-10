@@ -65,6 +65,8 @@ namespace UNO.Types
 
         private bool isReversed { get; set; }
 
+        private int turnNumber { get; set; }
+
         public Game() { }
 
         public Game(SocketUser host, ulong channelId)
@@ -102,6 +104,8 @@ namespace UNO.Types
             isReversed = false;
 
             UpdateTimestamp();
+
+            turnNumber = 1;
         }
 
         /// <summary>
@@ -170,6 +174,7 @@ namespace UNO.Types
         /// </summary>
         public async Task DoTurn(Card inputCard)
         {
+            turnNumber++;
             UpdateTimestamp();
 
             await CheckForWinner();
@@ -222,7 +227,7 @@ namespace UNO.Types
                 m.Embed = new EmbedBuilder()
                     .WithColor(CurrentCard.GetDiscordColor())
                     .WithAuthor(new EmbedAuthorBuilder()
-                        .WithName($"{currentPlayer.User.Username}'s Turn")
+                        .WithName($"{currentPlayer.User.Username}'s Turn - Turn #{turnNumber}")
                         .WithIconUrl(currentPlayer.User.GetAvatarUrl() ?? currentPlayer.User.GetDefaultAvatarUrl()))
                     .WithDescription($"{previousPlayer.User.Username} played a {CurrentCard.ToString()}.{stackText}{InfoMessage}")
                     .WithThumbnailUrl(CurrentCard.GetImageUrl())
