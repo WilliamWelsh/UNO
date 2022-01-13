@@ -1,6 +1,6 @@
 <h1 align="center">
 
-<img src="https://cdn.discordapp.com/app-icons/914696129067757608/7fd998cc305ed2f4e5fc6685172ac13b.png?size=256" alt="logo" width="256"/>
+<img src="https://i.imgur.com/WllfbYf.png" alt="logo" width="256"/>
 <br/>
 UNO on Discord
 </h1>
