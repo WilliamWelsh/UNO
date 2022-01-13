@@ -14,6 +14,10 @@ UNO on Discord
 
 </div>
 
+### Invite
+
+[Click here to invite UNO to your Discord server.](https://discord.com/api/oauth2/authorize?client_id=914696129067757608&permissions=0&scope=applications.commands%20bot)
+
 ### How to Play
 
 1. Start a new game by doing `/uno`
