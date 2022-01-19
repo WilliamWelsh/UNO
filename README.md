@@ -5,7 +5,7 @@
 UNO on Discord
 </h1>
 
-<h4 align="center">Play UNO with up to 4 friends on Discord.</h4>
+<h4 align="center">Play UNO with up to 12 friends on Discord.</h4>
 
 <div align="center">
 

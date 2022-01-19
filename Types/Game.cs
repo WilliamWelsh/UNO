@@ -57,6 +57,11 @@ namespace UNO.Types
         public string InfoMessage { get; set; }
 
         /// <summary>
+        /// Maximum number of players
+        /// </summary>
+        public int MaxPlayers = 12;
+
+        /// <summary>
         /// How many cards does the next person have to pick up?
         /// </summary>
         public int StackToPickUp { get; set; }

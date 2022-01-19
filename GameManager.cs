@@ -118,7 +118,6 @@ namespace UNO
         /// </summary>
         public async Task TryToJoinGame(SocketMessageComponent command, ulong hostId)
         {
-            Console.WriteLine(hostId);
             // Check if that game is still valid
             if (!ActiveGames.Any(g => g.Host.User.Id == hostId))
             {
@@ -151,7 +150,7 @@ namespace UNO
             }
 
             // Check if the game already has 4 players
-            else if (game.Players.Count >= 4)
+            else if (game.Players.Count >= game.MaxPlayers)
             {
                 await command.PrintError("This game is full.");
                 return;
@@ -172,7 +171,7 @@ namespace UNO
                 m.Components = new ComponentBuilder()
                     .WithButton("Start Game", $"start-{game.Host.User.Id}", row: 0, style: ButtonStyle.Secondary, disabled: game.Players.Count == 0)
                     .WithButton("Cancel Game", $"cancel-{game.Host.User.Id}", row: 0, style: ButtonStyle.Secondary)
-                    .WithButton("Join Game", $"join-{game.Host.User.Id}", row: 1, style: ButtonStyle.Secondary, disabled: game.Players.Count >= 3)
+                    .WithButton("Join Game", $"join-{game.Host.User.Id}", row: 1, style: ButtonStyle.Secondary, disabled: game.Players.Count >= game.MaxPlayers)
                     .WithButton("Leave Game", $"leave-{game.Host.User.Id}", row: 1, style: ButtonStyle.Secondary)
                     .Build();
             });
@@ -225,7 +224,7 @@ namespace UNO
                 m.Components = new ComponentBuilder()
                     .WithButton("Start Game", $"start-{game.Host.User.Id}", row: 0, style: ButtonStyle.Secondary, disabled: game.Players.Count == 0)
                     .WithButton("Cancel Game", $"cancel-{game.Host.User.Id}", row: 0, style: ButtonStyle.Secondary)
-                    .WithButton("Join Game", $"join-{game.Host.User.Id}", row: 1, style: ButtonStyle.Secondary, disabled: game.Players.Count >= 4)
+                    .WithButton("Join Game", $"join-{game.Host.User.Id}", row: 1, style: ButtonStyle.Secondary, disabled: game.Players.Count >= game.MaxPlayers)
                     .WithButton("Leave Game", $"leave-{game.Host.User.Id}", row: 1, style: ButtonStyle.Secondary)
                     .Build();
             });
