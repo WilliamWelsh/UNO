@@ -11,7 +11,7 @@ jobs:
           severity: info
           username: UNO
           color: "#E74C3C"
-          avatarUrl: https://cdn.discordapp.com/app-icons/914696129067757608/7fd998cc305ed2f4e5fc6685172ac13b.png?size=256
+          avatarUrl: https://i.imgur.com/WllfbYf.png
           description: ${{ github.event.head_commit.message }}
           details: "[View online](${{ github.event.head_commit.url }})"
           footer: "GitHub"
