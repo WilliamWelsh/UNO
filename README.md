@@ -1,6 +1,6 @@
 <h1 align="center">
 
-<img src="https://cdn.discordapp.com/app-icons/914696129067757608/7fd998cc305ed2f4e5fc6685172ac13b.png?size=256" alt="logo" width="256"/>
+<img src="https://i.imgur.com/WllfbYf.png" alt="logo" width="256"/>
 <br/>
 UNO on Discord
 </h1>
@@ -13,6 +13,10 @@ UNO on Discord
 <img src="https://img.shields.io/badge/-.NET%206.0-blueviolet">
 
 </div>
+
+### Invite
+
+[Click here to invite UNO to your Discord server.](https://discord.com/api/oauth2/authorize?client_id=914696129067757608&permissions=0&scope=applications.commands%20bot)
 
 ### How to Play
 
