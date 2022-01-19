@@ -301,6 +301,8 @@ namespace UNO.Types
             {
                 await GameMessage.ModifyAsync(m =>
                 {
+                    m.Content = "The game is over, I hope you had fun 😊";
+
                     m.Embed = new EmbedBuilder()
                         .WithColor(CurrentCard.GetDiscordColor())
                         .WithAuthor(new EmbedAuthorBuilder()
@@ -314,7 +316,7 @@ namespace UNO.Types
                 });
 
                 foreach (var player in Players)
-                    await player.ShowEndGameCardMenu();
+                    await player.RemoveAllPlayerCardMenusWithMessage("The game is over, I hope you had fun 😊");
             }
         }
 

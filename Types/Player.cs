@@ -286,13 +286,13 @@ namespace UNO.Types
         /// <summary>
         /// Removes the game cards because the game is over
         /// </summary>
-        public async Task ShowEndGameCardMenu()
+        public async Task RemoveAllPlayerCardMenusWithMessage(string message)
         {
             try
             {
                 await CardMenuMessage.ModifyOriginalResponseAsync(x =>
                 {
-                    x.Content = "The game is over, I hope you had fun 😊";
+                    x.Content = message;
                     x.Embed = null;
                     x.Components = new ComponentBuilder().Build();
                 });

@@ -33,7 +33,7 @@ namespace UNO
                     return true;
                 }
 
-                await command.PrintError($"There is already an active game in this channel, please wait until that one is finished, or ask the Host, {game.Host.User.Mention}, to end it.");
+                await command.PrintError($"There is already an active game in this channel, please wait until that one is finished, or ask the Host, {game.Host.User.Mention}, to end it. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 return false;
             }
 
@@ -56,7 +56,7 @@ namespace UNO
                     return true;
                 }
 
-                await command.PrintError("You are already hosting a game. Either finish that game, or close it.\n\nYou can end a game by pressing the \"End Game\" button.");
+                await command.PrintError("You are already hosting a game. Either finish that game, or close it.\n\nYou can end a game by pressing the \"End Game\" button. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 return false;
             }
 
@@ -79,7 +79,7 @@ namespace UNO
                     return true;
                 }
 
-                await command.PrintError("You are already playing a game. Either finish that game, or leave it.\n\nYou can leave a game by pressing the \"Leave Game\" button on.");
+                await command.PrintError("You are already playing a game. Either finish that game, or leave it.\n\nYou can leave a game by pressing the \"Leave Game\" button on. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 return false;
             }
 
@@ -121,7 +121,7 @@ namespace UNO
             // Check if that game is still valid
             if (!ActiveGames.Any(g => g.Host.User.Id == hostId))
             {
-                await command.PrintError("This game does not exist.");
+                await command.PrintError("This game does not exist. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 return;
             }
 
@@ -131,14 +131,14 @@ namespace UNO
             // Check if this game has started already
             if (game.hasStarted)
             {
-                await command.PrintError("This game started already.");
+                await command.PrintError("This game started already. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 return;
             }
 
             // Check if the user is already in the game
             else if (game.Players.Any(p => p.User.Id == command.User.Id))
             {
-                await command.PrintError("You are already in this game. Click the \'Leave Game\" button if you want to leave it.");
+                await command.PrintError("You are already in this game. Click the \'Leave Game\" button if you want to leave it. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 return;
             }
 
@@ -187,7 +187,7 @@ namespace UNO
             // Check if that game is still valid
             if (!ActiveGames.Any(g => g.Host.User.Id == hostId))
             {
-                await command.PrintError("This game does not exist.");
+                await command.PrintError("This game does not exist. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 return;
             }
 
@@ -197,7 +197,7 @@ namespace UNO
             // Check if the user is the host
             if (game.Host.User.Id == command.User.Id)
             {
-                await command.PrintError("You're the host. If you want to leave, use the \"Cancel Game\" button.");
+                await command.PrintError("You're the host. If you want to leave, use the \"Cancel Game\" button. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 return;
             }
 
@@ -242,7 +242,7 @@ namespace UNO
             // Check if that game is still valid
             if (!ActiveGames.Any(g => g.Host.User.Id == hostId))
             {
-                await command.PrintError("This game does not exist.");
+                await command.PrintError("This game does not exist. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 canCancel = false;
             }
 
@@ -251,7 +251,7 @@ namespace UNO
 
             if (game.Host.User.Id != command.User.Id)
             {
-                await command.PrintError("You're not the host. If you want to leave, use the \"Leave Game\" button.");
+                await command.PrintError("You're not the host. If you want to leave, use the \"Leave Game\" button. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 canCancel = false;
             }
 
@@ -472,6 +472,53 @@ namespace UNO
 
             // Show their regular cards
             await retrievedGame.Player.UpdateCardMenu(command);
+        }
+
+        /// <summary>
+        /// /admin reset
+        /// </summary>
+        public async Task TryToResetGame(SocketSlashCommand command)
+        {
+            // Has to be an admin
+            if (!((SocketGuildUser)command.User).GuildPermissions.Administrator)
+            {
+                await command.PrintError("You must have the Administrator permission to use this command.");
+                return;
+            }
+
+            // Try to find a valid game in this channel with this suer
+            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
+
+            if (!retrievedGame.hasValidGameAndPlayer)
+                return;
+
+            // Update the game message
+            await retrievedGame.Game.GameMessage.ModifyAsync(m =>
+            {
+                m.Embed = new EmbedBuilder()
+                    .WithColor(Colors.Red)
+                    .WithAuthor(new EmbedAuthorBuilder()
+                        .WithName($"UNO"))
+                    .WithDescription($"Game was manually reset by {command.User.Username}.")
+                    .Build();
+
+                m.Components = null;
+            });
+
+            // Delete the game
+            ActiveGames.Remove(retrievedGame.Game);
+            foreach (var player in retrievedGame.Game.Players)
+                await player.RemoveAllPlayerCardMenusWithMessage($"{command.User.Username} has manually reset the game in this channel.\n\nIf you want to start a new game in this channel, do `/uno`");
+
+            // Respond to the interaction
+            await command.RespondAsync(embed: new EmbedBuilder()
+                .WithColor(Colors.Red)
+                .WithAuthor(new EmbedAuthorBuilder()
+                    .WithName($"UNO"))
+                .WithDescription($"{command.User.Username} has manually reset the game in this channel.\n\nIf you want to start a new game in this channel, do `/uno`")
+                .Build());
+
+            ActiveGames.Remove(retrievedGame.Game);
         }
     }
 }

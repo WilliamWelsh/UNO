@@ -33,8 +33,6 @@ namespace UNO
             await _client.LoginAsync(TokenType.Bot, System.Environment.GetEnvironmentVariable("UnoDiscordBotToken"));
             await _client.StartAsync();
 
-            await _client.SetGameAsync("/uno");
-
             _client.InteractionCreated += OnInteractionCreated;
             _client.Ready += OnReady;
             _client.JoinedGuild += OnJoinedGuild;
@@ -54,6 +52,7 @@ namespace UNO
             await UpdateBotStatus();
 
             // Uncomment this to register commands (should only be run once, not everytime it starts)
+            // Comment it out again after registering the commands
             //await _commands.RegisterCommandsGloballyAsync();
         }
 

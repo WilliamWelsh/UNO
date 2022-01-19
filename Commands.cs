@@ -50,5 +50,14 @@ namespace UNO
 
         [ComponentInteraction("wild-*-*-*")]
         public async Task TryToPlayWildCard(string color, string special, string index) => await GameManager.TryToPlayWildCard((SocketMessageComponent)Context.Interaction, color, special, Convert.ToInt32(index));
+
+        [Group("admin", "UNO admin commands")]
+        public class AdminCommands : InteractionModuleBase<SocketInteractionContext>
+        {
+            public GameManager GameManager { get; set; }
+
+            [SlashCommand("reset", "Reset/delete the game in this channel")]
+            public async Task TryToResetGame() => await GameManager.TryToResetGame((SocketSlashCommand)Context.Interaction);
+        }
     }
 }
