@@ -308,7 +308,7 @@ namespace UNO.Types
                         .WithAuthor(new EmbedAuthorBuilder()
                             .WithName(winner.User.Username)
                             .WithIconUrl(winner.User.GetAvatarUrl() ?? winner.User.GetDefaultAvatarUrl()))
-                        .WithDescription($"{winner.User.Username} has won!{InfoMessage}")
+                        .WithDescription($"{winner.User.Username} has won after {turnNumber} rounds!{InfoMessage}")
                         .WithThumbnailUrl(CurrentCard.GetImageUrl())
                         .Build();
 
