@@ -105,7 +105,13 @@ namespace UNO.Types
                 await Game.DoTurn(Game.CurrentCard);
             }
             else
+            {
+                // Update the game message to show that they drew a card
+                await Game.UpdateInfoMessage($"{User.Username} drew a card.", true);
+
+                // Update the ephemeral card menu
                 await UpdateCardMenu(command, $"You drew a {newCard}.");
+            }
         }
 
         /// <summary>
@@ -123,7 +129,7 @@ namespace UNO.Types
             if (Deck.Count >= 24)
             {
                 // Update the game info
-                await Game.UpdateInfoMessage($"{User.Username} hit the max cards (24) and was kicked");
+                await Game.UpdateInfoMessage($"{User.Username} hit the max cards (24) and was kicked 🤣");
 
                 // Update player info
                 Deck.Clear();
