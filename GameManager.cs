@@ -551,7 +551,7 @@ namespace UNO
                 return;
             }
 
-            // Uh oh... someone has to pick up 2 cards.. 🤡🤡\
+            // Uh oh... someone has to pick up 2 cards.. 🤡🤡
             await playerWithOneCard.DrawCards(2);
 
             await retrievedGame.Game.UpdateInfoMessage($"{command.User.Username} said UNO before {playerWithOneCard.User.Username} did so they had to pick up 2 cards 😂", true);
