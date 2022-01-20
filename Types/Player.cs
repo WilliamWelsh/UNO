@@ -30,11 +30,17 @@ namespace UNO.Types
         /// </summary>
         public SocketMessageComponent CardMenuMessage { get; set; }
 
+        /// <summary>
+        /// Can anyone say UNO! for this player?
+        /// </summary>
+        public bool CanSomeoneSayUno { get; set; }
+
         public Player(SocketUser user, Random rnd, Game game)
         {
             User = user;
             Deck = new List<Card>();
             Game = game;
+            CanSomeoneSayUno = false;
 
             Random = rnd;
 
@@ -73,13 +79,13 @@ namespace UNO.Types
             AddNewCard(newCard);
 
             // Update the game info
-            Game.SetInfoMessage($"{User.Username} drew a card");
+            await Game.UpdateInfoMessage($"{User.Username} drew a card");
 
             // If they hit the max, kick them out
             if (Deck.Count >= 24)
             {
                 // Update the game info
-                Game.SetInfoMessage($"{User.Username} hit the max cards (24) and was kicked");
+                await Game.UpdateInfoMessage($"{User.Username} hit the max cards (24) and was kicked");
 
                 // Kick them out
                 Game.Players.Remove(this);
@@ -117,7 +123,7 @@ namespace UNO.Types
             if (Deck.Count >= 24)
             {
                 // Update the game info
-                Game.SetInfoMessage($"{User.Username} hit the max cards (24) and was kicked");
+                await Game.UpdateInfoMessage($"{User.Username} hit the max cards (24) and was kicked");
 
                 // Update player info
                 Deck.Clear();
@@ -126,6 +132,8 @@ namespace UNO.Types
                 // Kick them out
                 Game.Players.Remove(this);
             }
+
+            CanSomeoneSayUno = false;
 
             await UpdateCardMenu(null, message);
         }
@@ -252,6 +260,9 @@ namespace UNO.Types
         {
             // Remove the card from the player's deck
             Deck.RemoveAt(index);
+
+            if (Deck.Count == 1)
+                CanSomeoneSayUno = true;
 
             // Play the card in the game
             await Game.DoTurn(inputCard);

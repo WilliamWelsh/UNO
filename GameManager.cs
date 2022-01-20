@@ -520,5 +520,43 @@ namespace UNO
 
             ActiveGames.Remove(retrievedGame.Game);
         }
+
+        /// <summary>
+        /// "UNO!" button
+        /// </summary>
+        public async Task TryToSayUno(SocketMessageComponent command)
+        {
+            // Try to find a valid game in this channel with this suer
+            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
+
+            if (!retrievedGame.hasValidGameAndPlayer)
+                return;
+
+            // See if anyone has two cards
+            if (!retrievedGame.Game.Players.Any(p => p.CanSomeoneSayUno))
+            {
+                await command.PrintError("You were too late! 🐢🐢");
+                return;
+            }
+
+            // Someone said UNO! successfully, who was it?
+            var playerWithOneCard = retrievedGame.Game.Players.Where(p => p.CanSomeoneSayUno).First();
+
+            // WOO! They're safe 😎
+            if (playerWithOneCard.User.Id == command.User.Id)
+            {
+                playerWithOneCard.CanSomeoneSayUno = false;
+                await retrievedGame.Game.UpdateInfoMessage($"{command.User.Username} said UNO before anyone else did and didn't have to pick up any cards.", true);
+                await command.PrintSuccess("You said UNO before anyone else did, so you don't have to pick up any cards 😎. Congrats ⚡");
+                return;
+            }
+
+            // Uh oh... someone has to pick up 2 cards.. 🤡🤡\
+            await playerWithOneCard.DrawCards(2);
+
+            await retrievedGame.Game.UpdateInfoMessage($"{command.User.Username} said UNO before {playerWithOneCard.User.Username} did so they had to pick up 2 cards 😂", true);
+
+            await command.PrintSuccess($"You said UNO so {playerWithOneCard.User.Username} had to pick up 2 cards. Congrats ⚡");
+        }
     }
 }

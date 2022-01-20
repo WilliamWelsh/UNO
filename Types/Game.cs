@@ -133,7 +133,44 @@ namespace UNO.Types
             return result.ToString();
         }
 
-        public void SetInfoMessage(string message) => InfoMessage = $"\n\n{message}";
+        public async Task UpdateInfoMessage(string message, bool updateGameMessage = false)
+        {
+            InfoMessage = $"\n\n{message}";
+
+            if (updateGameMessage)
+            {
+                var currentPlayer = Players[CurrentPlayerIndex];
+
+                var stackText = StackToPickUp > 0 ? $"\n\nPickup Stack: {StackToPickUp}" : "";
+
+                await GameMessage.ModifyAsync(m =>
+                {
+                    m.Embed = new EmbedBuilder()
+                        .WithColor(CurrentCard.GetDiscordColor())
+                        .WithAuthor(new EmbedAuthorBuilder()
+                            .WithName($"{currentPlayer.User.Username}'s Turn - Turn #{turnNumber}")
+                            .WithIconUrl(currentPlayer.User.GetAvatarUrl() ?? currentPlayer.User.GetDefaultAvatarUrl()))
+                        .WithDescription($"Current card is a {CurrentCard.ToString()}.{stackText}{InfoMessage}")
+                        .WithThumbnailUrl(CurrentCard.GetImageUrl())
+                        .WithFields(new EmbedFieldBuilder[]
+                        {
+                            new EmbedFieldBuilder()
+                            {
+                                Name = $"Players {(isReversed ? "🔃" : "")}",
+                                Value = ListPlayers(true),
+                            }
+                        })
+                        .Build();
+
+                    m.Components = new ComponentBuilder()
+                        .WithButton("UNO!", $"sayuno", row: 0, style: ButtonStyle.Secondary, disabled: !Players.Any(p => p.CanSomeoneSayUno))
+                        .WithButton("View Cards", $"showcardprompt", row: 0, style: ButtonStyle.Secondary)
+                        .WithButton("Leave Game", $"leaveduringgame", row: 0, style: ButtonStyle.Secondary)
+                        .WithButton("End Game", $"endduringgame", row: 0, style: ButtonStyle.Secondary)
+                        .Build();
+                });
+            }
+        }
 
         /// <summary>
         /// Add a new player to this game
@@ -167,6 +204,7 @@ namespace UNO.Types
                     .Build();
 
                 m.Components = new ComponentBuilder()
+                    .WithButton("UNO!", $"sayuno", row: 0, style: ButtonStyle.Secondary, disabled: true)
                     .WithButton("View Cards", $"showcardprompt", row: 0, style: ButtonStyle.Secondary)
                     .WithButton("Leave Game", $"leaveduringgame", row: 0, style: ButtonStyle.Secondary)
                     .WithButton("End Game", $"endduringgame", row: 0, style: ButtonStyle.Secondary)
@@ -215,7 +253,7 @@ namespace UNO.Types
             // Check if this player has to pick up cards
             if (StackToPickUp > 0 && (lastCard.Special == Special.WildPlusTwo || lastCard.Special == Special.WildPlusFour) && CurrentCard.Special != Special.WildPlusTwo && CurrentCard.Special != Special.WildPlusFour)
             {
-                SetInfoMessage($"{previousPlayer.User.Username} had to pick up {StackToPickUp} cards 😂🤡");
+                await UpdateInfoMessage($"{previousPlayer.User.Username} had to pick up {StackToPickUp} cards 😂🤡");
                 await previousPlayer.DrawCards(StackToPickUp);
                 StackToPickUp = 0;
             }
@@ -247,6 +285,7 @@ namespace UNO.Types
                     .Build();
 
                 m.Components = new ComponentBuilder()
+                    .WithButton("UNO!", $"sayuno", row: 0, style: ButtonStyle.Secondary, disabled: !Players.Any(p => p.CanSomeoneSayUno))
                     .WithButton("View Cards", $"showcardprompt", row: 0, style: ButtonStyle.Secondary)
                     .WithButton("Leave Game", $"leaveduringgame", row: 0, style: ButtonStyle.Secondary)
                     .WithButton("End Game", $"endduringgame", row: 0, style: ButtonStyle.Secondary)
@@ -273,7 +312,7 @@ namespace UNO.Types
                 m.Components = null;
             });
 
-            SetInfoMessage($"{player.User.Username} left the game");
+            await UpdateInfoMessage($"{player.User.Username} left the game");
             await CheckForWinner();
         }
 
