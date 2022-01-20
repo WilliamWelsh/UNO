@@ -30,7 +30,7 @@ namespace UNO
             _client.Log += LogAsync;
             _commands.Log += LogAsync;
 
-            await _client.LoginAsync(TokenType.Bot, System.Environment.GetEnvironmentVariable("UnoDiscordBotToken"));
+            await _client.LoginAsync(TokenType.Bot, Config.IS_DEBUG ? System.Environment.GetEnvironmentVariable("TestBotToken") : System.Environment.GetEnvironmentVariable("UnoDiscordBotToken"));
             await _client.StartAsync();
 
             _client.InteractionCreated += OnInteractionCreated;
@@ -54,6 +54,12 @@ namespace UNO
             // Uncomment this to register commands (should only be run once, not everytime it starts)
             // Comment it out again after registering the commands
             //await _commands.RegisterCommandsGloballyAsync();
+
+            if (Config.IS_DEBUG)
+            {
+                Console.WriteLine("\n\nWARNING: Running in debug mode.\n\n");
+                await _commands.RegisterCommandsToGuildAsync(Config.DEBUG_GUILD_ID);
+            }
         }
 
         private async Task OnInteractionCreated(SocketInteraction interaction)
