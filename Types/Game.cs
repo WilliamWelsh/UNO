@@ -120,12 +120,12 @@ namespace UNO.Types
 
         public void UpdateTimestamp() => LastActionTimestamp = DateTime.Now;
 
-        public string ListPlayers(bool highlightCurrent = false)
+        public string ListPlayers(bool highlightCurrent = false, bool listCardCount = true)
         {
             var result = new StringBuilder();
 
             foreach (var player in Players)
-                result.AppendLine($"{(player == Host ? "👑" : "👤")} {player.User.Username} {(player.Deck.Count == 1 ? "**UNO!**" : $"- {player.Deck.Count} cards")}");
+                result.AppendLine($"{(player == Host ? "👑" : "👤")} {player.User.Username} {(listCardCount ? ((player.Deck.Count == 1 ? "**UNO!**" : $"- {player.Deck.Count} cards")) : "")}");
 
             if (highlightCurrent)
                 result.Replace(Players[CurrentPlayerIndex].User.Username, $"**{Players[CurrentPlayerIndex].User.Username}**");

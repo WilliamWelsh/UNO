@@ -101,7 +101,7 @@ namespace UNO
                     .WithColor(Colors.Red)
                     .WithAuthor(new EmbedAuthorBuilder()
                         .WithName("UNO"))
-                    .WithDescription($"{game.Host.User.Username} has started a game of UNO! Click the button below to join!\n\n{game.ListPlayers()}")
+                    .WithDescription($"{game.Host.User.Username} has started a game of UNO! Click the button below to join!\n\n{game.ListPlayers(listCardCount: false)}")
                     .Build(),
                 components: new ComponentBuilder()
                     .WithButton("Start Game", $"start-{command.User.Id}", row: 0, style: ButtonStyle.Secondary, disabled: true)
@@ -165,7 +165,7 @@ namespace UNO
                     .WithColor(Colors.Red)
                     .WithAuthor(new EmbedAuthorBuilder()
                         .WithName("UNO"))
-                    .WithDescription($"{game.Host.User.Username} has started a game of UNO! Click the button below to join!\n\n{game.ListPlayers()}\n\n*{command.User.Username} just joined*")
+                    .WithDescription($"{game.Host.User.Username} has started a game of UNO! Click the button below to join!\n\n{game.ListPlayers(listCardCount: false)}\n\n*{command.User.Username} just joined*")
                     .Build();
 
                 m.Components = new ComponentBuilder()
@@ -218,7 +218,7 @@ namespace UNO
                     .WithColor(Colors.Red)
                     .WithAuthor(new EmbedAuthorBuilder()
                         .WithName("UNO"))
-                    .WithDescription($"{game.Host.User.Username} has started a game of UNO! Click the button below to join!\n\n{game.ListPlayers()}\n\n*{command.User.Username} just left*")
+                    .WithDescription($"{game.Host.User.Username} has started a game of UNO! Click the button below to join!\n\n{game.ListPlayers(listCardCount: false)}\n\n*{command.User.Username} just left*")
                     .Build();
 
                 m.Components = new ComponentBuilder()
