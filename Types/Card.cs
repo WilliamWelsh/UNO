@@ -89,19 +89,7 @@ namespace UNO.Types
         /// <summary>
         /// Get the image Url of this card
         /// </summary>
-        public string GetImageUrl()
-        {
-            var specialText = Special.ToString().ToUpper();
-
-            if (specialText == "NONE")
-                specialText = "";
-            else if (specialText == "WILDPLUSTWO")
-                specialText = "+2";
-            else if (specialText == "WILDPLUSFOUR")
-                specialText = "WILD+4";
-
-            return $"https://raw.githubusercontent.com/Ratismal/UNO/master/cards/{Color.ToString()[0]}{Number}{specialText}.png";
-        }
+        public string GetImageUrl() => $"https://raw.githubusercontent.com/WilliamWelsh/UNO/main/images/{Color}{Number}{(Special == Special.None ? "" : Special)}.png";
 
         public override string ToString() => $"{Color.ToString().Replace("None", "")} {Number}{(Special == Special.None ? "" : Special.ToString().Replace("Plus", "+").Replace("Four", "4").Replace("Wild+Two", "+2"))} {GetSpecialEmoji()}";
 

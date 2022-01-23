@@ -31,7 +31,3 @@ UNO on Discord
 ### Help & Issues
 
 If you encounter any issues or have any suggestions, please put them here on GitHub or on [the Discord support server](https://discord.gg/UdCkusFA4d).
-
-### Credits
-
-Card images by [Ratismal](https://github.com/Ratismal/UNO)
