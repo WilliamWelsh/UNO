@@ -5,7 +5,7 @@ namespace UNO
         /// <summary>
         /// Should the bot connect to the Top.GG API?
         /// </summary>
-        public static bool USE_TOP_GG_API = false;
+        public static bool USE_TOP_GG_API = true;
 
         /// <summary>
         /// Are we in debug mode? (Register commands to guild and use test bot token)
@@ -16,5 +16,10 @@ namespace UNO
         /// The Guild to register guild commands to when debugging
         /// </summary>
         public static ulong DEBUG_GUILD_ID = 735263201612005472;
+
+        /// <summary>
+        /// The ID of the bot
+        /// </summary>
+        public static ulong BOT_CLIENT_ID = 914696129067757608;
     }
 }
