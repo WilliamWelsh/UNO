@@ -12,7 +12,7 @@ namespace UNO
         /// <summary>
         /// Check if the user is already playing a game, or if they are hosting one already, or if there isn't one in this channel
         /// </summary>
-        private async Task<bool> CanWeStartANewgame(SocketInteraction command)
+        private async Task<bool> CanWeStartANewGame(SocketInteraction command)
         {
             // Check if there isn't an active game in this channel already
             if (ActiveGames.Any(g => g.ChannelId == command.Channel.Id))
@@ -92,7 +92,7 @@ namespace UNO
         public async Task TryToInitializeGame(SocketInteraction command)
         {
             // Check if they are able to host a new game
-            if (!(await CanWeStartANewgame(command)))
+            if (!(await CanWeStartANewGame(command)))
                 return;
 
             var game = new Types.Game(command.User, command.Channel.Id);

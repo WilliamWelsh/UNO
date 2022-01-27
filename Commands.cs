@@ -6,7 +6,6 @@ namespace UNO
 {
     public class Commands : InteractionModuleBase<SocketInteractionContext>
     {
-        // Dependencies can be accessed through Property injection, public properties with public setters will be set by the service provider
         public GameManager GameManager { get; set; }
 
         // /uno

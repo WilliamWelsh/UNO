@@ -213,7 +213,7 @@ namespace UNO.Types
         }
 
         /// <summary>
-        /// Start the game
+        /// Have a player play a card
         /// </summary>
         public async Task DoTurn(Card inputCard)
         {
