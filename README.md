@@ -11,6 +11,8 @@ UNO on Discord
 
 [<img src="https://discordapp.com/api/guilds/735263201612005472/widget.png?style=shield">](https://discord.gg/UdCkusFA4d)
 <img src="https://img.shields.io/badge/-.NET%206.0-blueviolet">
+[![Discord Bots](https://top.gg/api/widget/status/914696129067757608.svg)](https://top.gg/bot/914696129067757608)
+[![Discord Bots](https://top.gg/api/widget/servers/914696129067757608.svg)](https://top.gg/bot/914696129067757608)
 
 </div>
 
