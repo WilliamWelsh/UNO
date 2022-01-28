@@ -21,5 +21,10 @@ namespace UNO
         /// The ID of the bot
         /// </summary>
         public static ulong BOT_CLIENT_ID = 914696129067757608;
+
+        /// <summary>
+        /// It's recommended to have 1 shard per 1500-2000 guilds your bot is in.
+        /// </summary>
+        public static int DISCORD_SHARD_COUNT = 2;
     }
 }

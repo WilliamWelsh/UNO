@@ -4,7 +4,7 @@ using Discord.WebSocket;
 
 namespace UNO
 {
-    public class Commands : InteractionModuleBase<SocketInteractionContext>
+    public class Commands : InteractionModuleBase<ShardedInteractionContext>
     {
         public GameManager GameManager { get; set; }
 

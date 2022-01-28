@@ -12,7 +12,7 @@ namespace UNO
     {
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
-        private DiscordSocketClient _client;
+        private DiscordShardedClient _client;
 
         private InteractionService _commands;
 
@@ -24,7 +24,7 @@ namespace UNO
         {
             _services = ConfigureServices();
 
-            _client = _services.GetRequiredService<DiscordSocketClient>();
+            _client = _services.GetRequiredService<DiscordShardedClient>();
 
             _commands = _services.GetRequiredService<InteractionService>();
 
@@ -45,7 +45,7 @@ namespace UNO
             await _client.StartAsync();
 
             _client.InteractionCreated += OnInteractionCreated;
-            _client.Ready += OnReady;
+            _client.ShardReady += OnReady;
             _client.JoinedGuild += OnJoinedGuild;
             _client.LeftGuild += OnLeftGuild;
 
@@ -54,11 +54,13 @@ namespace UNO
 
         private async Task UpdateBotStatus()
         {
+            Console.WriteLine("Updating guild count...");
+
             // Update Bot Status
             await _client.SetGameAsync($"/uno on {_client.Guilds.Count} servers");
 
             // Update Top.gg Server Count
-            if (Config.USE_TOP_GG_API)
+            if (Config.USE_TOP_GG_API && !Config.IS_DEBUG)
                 await _dblApi.UpdateStatsAsync(_client.Guilds.Count);
         }
 
@@ -66,7 +68,7 @@ namespace UNO
 
         private async Task OnJoinedGuild(SocketGuild arg) => await UpdateBotStatus();
 
-        private async Task OnReady()
+        private async Task OnReady(DiscordSocketClient arg)
         {
             await UpdateBotStatus();
 
@@ -87,7 +89,7 @@ namespace UNO
             {
                 // Create an execution context that matches the generic type parameter of
                 // the InteractionModuleBase<T> module
-                var ctx = new SocketInteractionContext(_client, interaction);
+                var ctx = new ShardedInteractionContext(_client, interaction);
                 await _commands.ExecuteCommandAsync(ctx, _services);
             }
             catch (Exception e)
@@ -105,12 +107,13 @@ namespace UNO
         ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
-                .AddSingleton<DiscordSocketClient>(x => new DiscordSocketClient(new DiscordSocketConfig
+                .AddSingleton<DiscordShardedClient>(x => new DiscordShardedClient(new DiscordSocketConfig
                 {
                     LogLevel = LogSeverity.Verbose,
-                    GatewayIntents = GatewayIntents.Guilds
+                    GatewayIntents = GatewayIntents.Guilds,
+                    TotalShards = Config.DISCORD_SHARD_COUNT
                 }))
-                .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
+                .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordShardedClient>()))
                 .AddSingleton<GameManager>()
                 .BuildServiceProvider();
         }
