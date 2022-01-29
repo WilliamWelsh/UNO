@@ -76,5 +76,46 @@ namespace UNO
             [SlashCommand("reset", "Reset/delete the game in this channel")]
             public async Task TryToResetGame() => await GameManager.TryToResetGame((SocketSlashCommand)Context.Interaction);
         }
+
+        // /endall
+        [SlashCommand("endall", "End all games with a message")]
+        public async Task EndAll(string message)
+        {
+            // This is a command for me to end every game in every guild, so I can
+            // update the bot (restart it) without them wondering why the bot
+            // suddenly stopped working
+            if (Context.Interaction.User.Id != 354458973572956160)
+                return;
+
+            await Context.Interaction.DeferAsync();
+
+            foreach (var game in GameManager.ActiveGames)
+            {
+                game.isGameOver = true;
+                await game.GameMessage.ModifyAsync(x =>
+                {
+                    x.Content = "Sorry!";
+                    x.Components = null;
+                    x.Embed = new EmbedBuilder()
+                        .WithColor(Colors.Red)
+                        .WithAuthor(new EmbedAuthorBuilder()
+                            .WithName("UNO is updating...")
+                            .WithIconUrl(Context.Client.CurrentUser.GetAvatarUrl()))
+                        .WithDescription($"I'm sorry.\n\nThe bot is restarting to add updates. The bot should back online within 2 minutes. You can join the support server in my bio if you have an issue.\n\nMessage from the developer: {message}")
+                        .Build();
+                });
+                foreach (var player in game.Players)
+                {
+                    await player.CardMenuMessage.ModifyOriginalResponseAsync(x =>
+                    {
+                        x.Content = $"I'm sorry.\n\nThe bot is restarting to add updates. The bot should back online within 2 minutes. You can join the support server in my bio if you have an issue.\n\nMessage from the developer: {message}";
+                        x.Embed = null;
+                        x.Components = new ComponentBuilder().Build();
+                    });
+                }
+            }
+
+            await Context.Interaction.FollowupAsync("Done!");
+        }
     }
 }
