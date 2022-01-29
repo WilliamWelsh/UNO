@@ -56,12 +56,14 @@ namespace UNO
         {
             Console.WriteLine("Updating guild count...");
 
+            var totalGuilds = _client.Shards.Sum(x => x.Guilds.Count);
+
             // Update Bot Status
-            await _client.SetGameAsync($"/uno on {_client.Guilds.Count} servers");
+            await _client.SetGameAsync($"/uno on {totalGuilds} servers");
 
             // Update Top.gg Server Count
             if (Config.USE_TOP_GG_API && !Config.IS_DEBUG)
-                await _dblApi.UpdateStatsAsync(_client.Guilds.Count);
+                await _dblApi.UpdateStatsAsync(totalGuilds);
         }
 
         private async Task OnLeftGuild(SocketGuild arg) => await UpdateBotStatus();
@@ -70,8 +72,6 @@ namespace UNO
 
         private async Task OnReady(DiscordSocketClient arg)
         {
-            await UpdateBotStatus();
-
             // Uncomment this to register commands (should only be run once, not everytime it starts)
             // Comment it out again after registering the commands
             //await _commands.RegisterCommandsGloballyAsync();
