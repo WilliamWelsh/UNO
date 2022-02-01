@@ -490,7 +490,10 @@ namespace UNO
             var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
 
             if (!retrievedGame.hasValidGameAndPlayer)
+            {
+                await command.PrintError("There is no game in this channel.");
                 return;
+            }
 
             // Update the game message
             await retrievedGame.Game.GameMessage.ModifyAsync(m =>

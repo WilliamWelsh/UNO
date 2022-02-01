@@ -68,7 +68,7 @@ namespace UNO
         public async Task TryToSayUno() => await GameManager.TryToSayUno((SocketMessageComponent)Context.Interaction);
 
         [Group("admin", "UNO admin commands")]
-        public class AdminCommands : InteractionModuleBase<SocketInteractionContext>
+        public class AdminCommands : InteractionModuleBase<ShardedInteractionContext>
         {
             public GameManager GameManager { get; set; }
 
