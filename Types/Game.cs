@@ -233,8 +233,18 @@ namespace UNO.Types
             // Increment the turn
             if (CurrentCard.Special == Special.Reverse)
             {
-                isReversed = !isReversed;
-                IncrementTurn();
+                // Reverse's in a 2 player game act like a skip
+                // https://twitter.com/realUNOgame/status/1478019270483320839
+                if (Players.Count == 2)
+                {
+                    IncrementTurn();
+                    IncrementTurn();
+                }
+                else
+                {
+                    isReversed = !isReversed;
+                    IncrementTurn();
+                }
             }
             else if (CurrentCard.Special == Special.Skip)
             {
