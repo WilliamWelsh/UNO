@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Newtonsoft.Json;
 
 namespace UNO
 {
@@ -75,6 +76,83 @@ namespace UNO
             // /admin reset
             [SlashCommand("reset", "Reset/delete the game in this channel")]
             public async Task TryToResetGame() => await GameManager.TryToResetGame((SocketSlashCommand)Context.Interaction);
+
+            // These whitelist commands are temporary
+            // until Discord adds interaction permission thingies
+
+            // /admin whitelist
+            [SlashCommand("whitelist", "Whitelist for this channel on UNO")]
+            public async Task TryToWhitelist()
+            {
+                var guild = ((SocketGuildUser)Context.Interaction.User).Guild;
+
+                // Has to be an admin
+                if (!((SocketGuildUser)Context.Interaction.User).GuildPermissions.Administrator)
+                {
+                    await Context.Interaction.PrintError("You must have the Administrator permission to use this command.");
+                    return;
+                }
+
+                Whitelisted whitelisted = null;
+                if (!GameManager.Whitelisted.Any(x => x.GuildId == guild.Id))
+                {
+                    whitelisted = new Whitelisted()
+                    {
+                        GuildId = guild.Id,
+                        ChannelIds = new List<ulong>()
+                    };
+                    whitelisted.ChannelIds.Add(Context.Interaction.Channel.Id);
+                    GameManager.Whitelisted.Add(whitelisted);
+                }
+                else
+                {
+                    if (GameManager.Whitelisted.First(x => x.GuildId == guild.Id).ChannelIds.Contains(Context.Interaction.Channel.Id))
+                    {
+                        await Context.Interaction.PrintError("This channel is already whitelisted. You can use `/admin unwhitelist` to remove it.");
+                        return;
+                    }
+                    GameManager.Whitelisted.First(x => x.GuildId == guild.Id).ChannelIds.Add(Context.Interaction.Channel.Id);
+                }
+
+                File.WriteAllText("whitelisted.json", JsonConvert.SerializeObject(GameManager.Whitelisted));
+
+                await Context.Interaction.PrintError("This channel is now whitelisted for UNO. UNO can only be played in whitelisted channels.");
+            }
+
+            // /admin unwhitelist
+            [SlashCommand("unwhitelist", "Whitelist for this channel on UNO")]
+            public async Task TryToUnWhitelist()
+            {
+                var guild = ((SocketGuildUser)Context.Interaction.User).Guild;
+
+                // Has to be an admin
+                if (!((SocketGuildUser)Context.Interaction.User).GuildPermissions.Administrator)
+                {
+                    await Context.Interaction.PrintError("You must have the Administrator permission to use this command.");
+                    return;
+                }
+
+                Whitelisted whitelisted = null;
+                if (!GameManager.Whitelisted.Any(x => x.GuildId == guild.Id))
+                {
+                    await Context.Interaction.PrintError("It doesn't appear that this channel is whitelisted 👀");
+                    return;
+                }
+
+                whitelisted = GameManager.Whitelisted.First(x => x.GuildId == guild.Id);
+
+                if (!whitelisted.ChannelIds.Contains(Context.Interaction.Channel.Id))
+                {
+                    await Context.Interaction.PrintError("It doesn't appear that this channel is whitelisted 👀");
+                    return;
+                }
+
+                GameManager.Whitelisted.First(x => x.GuildId == guild.Id).ChannelIds.Remove(Context.Interaction.Channel.Id);
+
+                File.WriteAllText("whitelisted.json", JsonConvert.SerializeObject(GameManager.Whitelisted));
+
+                await Context.Interaction.PrintError("This channel is now whitelisted for UNO. UNO can only be played in whitelisted channels.");
+            }
         }
 
         // /endall
