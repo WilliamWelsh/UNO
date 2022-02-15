@@ -99,6 +99,9 @@ namespace UNO
             {
                 var whitelisted = Whitelisted.Where(x => x.GuildId == (((SocketGuildUser)command.User).Guild).Id).First();
 
+                if (whitelisted.ChannelIds.Count == 0)
+                    return true;
+
                 // Check if the channel is whitelisted
                 if (!whitelisted.ChannelIds.Contains(command.Channel.Id))
                 {
