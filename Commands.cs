@@ -116,7 +116,7 @@ namespace UNO
 
                 File.WriteAllText("whitelisted.json", JsonConvert.SerializeObject(GameManager.Whitelisted));
 
-                await Context.Interaction.PrintError("This channel is now whitelisted for UNO. UNO can only be played in whitelisted channels.");
+                await Context.Interaction.PrintSuccess("This channel is now whitelisted for UNO. UNO can only be played in whitelisted channels.");
             }
 
             // /admin unwhitelist
@@ -151,7 +151,7 @@ namespace UNO
 
                 File.WriteAllText("whitelisted.json", JsonConvert.SerializeObject(GameManager.Whitelisted));
 
-                await Context.Interaction.PrintError("This channel is no longer whitelisted for UNO.");
+                await Context.Interaction.PrintSuccess("This channel is no longer whitelisted for UNO.");
             }
         }
 
