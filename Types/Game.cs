@@ -215,7 +215,7 @@ namespace UNO.Types
         /// <summary>
         /// Have a player play a card
         /// </summary>
-        public async Task DoTurn(Card inputCard)
+        public async Task DoTurn(Card inputCard, bool playedCard = true)
         {
             turnNumber++;
             UpdateTimestamp();
@@ -282,7 +282,7 @@ namespace UNO.Types
                     .WithAuthor(new EmbedAuthorBuilder()
                         .WithName($"{currentPlayer.User.Username}'s Turn - Round #{turnNumber}")
                         .WithIconUrl(currentPlayer.User.GetAvatarUrl() ?? currentPlayer.User.GetDefaultAvatarUrl()))
-                    .WithDescription($"{previousPlayer.User.Username} played a {CurrentCard.ToString()}.{stackText}{InfoMessage}")
+                    .WithDescription(playedCard ? $"{previousPlayer.User.Username} played a {CurrentCard.ToString()}.{stackText}{InfoMessage}" : $"{currentPlayer.User.Username} drew a card.{stackText}{InfoMessage}")
                     .WithThumbnailUrl(CurrentCard.GetImageUrl())
                     .WithFields(new EmbedFieldBuilder[]
                     {

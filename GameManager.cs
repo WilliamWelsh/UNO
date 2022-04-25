@@ -514,16 +514,16 @@ namespace UNO
             }
 
             // Try to find a valid game in this channel with this suer
-            var retrievedGame = await command.TryToFindGameInThisChannelWithUser(ActiveGames);
-
-            if (!retrievedGame.hasValidGameAndPlayer)
+            if (!ActiveGames.Any(g => g.ChannelId == command.Channel.Id))
             {
                 await command.PrintError("There is no game in this channel.");
                 return;
             }
 
+            var game = ActiveGames.Where(g => g.ChannelId == command.Channel.Id).First();
+
             // Update the game message
-            await retrievedGame.Game.GameMessage.ModifyAsync(m =>
+            await game.GameMessage.ModifyAsync(m =>
             {
                 m.Embed = new EmbedBuilder()
                     .WithColor(Colors.Red)
@@ -536,8 +536,8 @@ namespace UNO
             });
 
             // Delete the game
-            ActiveGames.Remove(retrievedGame.Game);
-            foreach (var player in retrievedGame.Game.Players)
+            ActiveGames.Remove(game);
+            foreach (var player in game.Players)
                 await player.RemoveAllPlayerCardMenusWithMessage($"{command.User.Username} has manually reset the game in this channel.\n\nIf you want to start a new game in this channel, do `/uno`");
 
             // Respond to the interaction
@@ -548,7 +548,7 @@ namespace UNO
                 .WithDescription($"{command.User.Username} has manually reset the game in this channel.\n\nIf you want to start a new game in this channel, do `/uno`")
                 .Build());
 
-            ActiveGames.Remove(retrievedGame.Game);
+            ActiveGames.Remove(game);
         }
 
         /// <summary>

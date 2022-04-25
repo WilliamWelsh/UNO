@@ -106,8 +106,7 @@ namespace UNO.Types
             }
             else
             {
-                // Update the game message to show that they drew a card
-                await Game.UpdateInfoMessage($"{User.Username} drew a card.", true);
+                await Game.DoTurn(Game.CurrentCard, false);
 
                 // Update the ephemeral card menu
                 await UpdateCardMenu(command, $"You drew a {newCard}.");
