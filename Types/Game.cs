@@ -261,7 +261,7 @@ namespace UNO.Types
                 StackToPickUp += 4;
 
             // Check if this player has to pick up cards
-            if (StackToPickUp > 0 && (lastCard.Special == Special.WildPlusTwo || lastCard.Special == Special.WildPlusFour) && CurrentCard.Special != Special.WildPlusTwo && CurrentCard.Special != Special.WildPlusFour)
+            if (StackToPickUp > 0 && (lastCard.Special == Special.WildPlusTwo || lastCard.Special == Special.WildPlusFour) && CurrentCard.Special != Special.WildPlusTwo && CurrentCard.Special != Special.WildPlusFour || !playedCard)
             {
                 await UpdateInfoMessage($"{previousPlayer.User.Username} had to pick up {StackToPickUp} cards 😂🤡");
                 await previousPlayer.DrawCards(StackToPickUp);
