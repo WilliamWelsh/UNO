@@ -8,17 +8,7 @@ namespace UNO
     {
         public List<Types.Game> ActiveGames;
 
-        public List<Whitelisted> Whitelisted;
-
-        public GameManager()
-        {
-            ActiveGames = new List<Types.Game>();
-
-            if (!File.Exists("whitelisted.json"))
-                File.WriteAllText("whitelisted.json", "[]");
-
-            Whitelisted = JsonConvert.DeserializeObject<List<Whitelisted>>(File.ReadAllText("whitelisted.json"));
-        }
+        public GameManager() => ActiveGames = new List<Types.Game>();
 
         /// <summary>
         /// Check if the user is already playing a game, or if they are hosting one already, or if there isn't one in this channel
@@ -92,22 +82,6 @@ namespace UNO
 
                 await command.PrintError("You are already playing a game. Either finish that game, or leave it.\n\nYou can leave a game by pressing the \"Leave Game\" button on. If there is an issue, an admin can use `/admin` commands to reset or respawn the game.");
                 return false;
-            }
-
-            // Check if this server has whitelist rules
-            if (Whitelisted.Any(x => x.GuildId == (((SocketGuildUser)command.User).Guild).Id))
-            {
-                var whitelisted = Whitelisted.Where(x => x.GuildId == (((SocketGuildUser)command.User).Guild).Id).First();
-
-                if (whitelisted.ChannelIds.Count == 0)
-                    return true;
-
-                // Check if the channel is whitelisted
-                if (!whitelisted.ChannelIds.Contains(command.Channel.Id))
-                {
-                    await command.PrintError("This server has whitelist rules, and this channel is not whitelisted to play UNO. If this is an error, ask an admin to run `/admin whitelist` in this channel so UNO can be played here😃");
-                    return false;
-                }
             }
 
             return true;
