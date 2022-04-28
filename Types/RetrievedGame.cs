@@ -13,10 +13,7 @@ namespace UNO.Types
 
         public RetrievedGame() { }
 
-        public RetrievedGame(Game game)
-        {
-            Game = game;
-        }
+        public RetrievedGame(Game game) => Game = game;
 
         public void SetPlayer(Player player)
         {

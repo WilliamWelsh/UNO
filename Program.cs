@@ -109,7 +109,7 @@ namespace UNO
             return new ServiceCollection()
                 .AddSingleton<DiscordShardedClient>(x => new DiscordShardedClient(new DiscordSocketConfig
                 {
-                    LogLevel = LogSeverity.Error,
+                    LogLevel = LogSeverity.Info,
                     GatewayIntents = GatewayIntents.Guilds,
                     TotalShards = Config.DISCORD_SHARD_COUNT
                 }))

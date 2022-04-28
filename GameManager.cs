@@ -513,7 +513,7 @@ namespace UNO
                 return;
             }
 
-            // Try to find a valid game in this channel with this suer
+            // Try to find a valid game in this channel
             if (!ActiveGames.Any(g => g.ChannelId == command.Channel.Id))
             {
                 await command.PrintError("There is no game in this channel.");

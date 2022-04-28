@@ -49,10 +49,11 @@ namespace UNO.Types
                 AddNewCard();
         }
 
-        private bool isItMyTurn()
-        {
-            return Game.Players[Game.CurrentPlayerIndex] == this;
-        }
+
+        /// <summary>
+        /// Is it this player's turn?
+        /// </summary>
+        private bool isItMyTurn() => Game.Players[Game.CurrentPlayerIndex] == this;
 
         /// <summary>
         /// Add a random card and sort the deck
@@ -106,7 +107,7 @@ namespace UNO.Types
             }
             else
             {
-                await Game.DoTurn(Game.CurrentCard, false);
+                Game.DoTurn(Game.CurrentCard, false).Wait();
 
                 // Update the ephemeral card menu
                 await UpdateCardMenu(command, $"You drew a {newCard}.");
