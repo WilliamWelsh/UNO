@@ -1,6 +1,5 @@
 using Discord;
 using Discord.WebSocket;
-using Newtonsoft.Json;
 
 namespace UNO
 {

@@ -154,7 +154,7 @@ namespace UNO.Types
         /// </summary>
         public async Task ShowInitialCardMenu(SocketSlashCommand command)
         {
-            await command.RespondAsync(component: new ComponentBuilder()
+            await command.RespondAsync(components: new ComponentBuilder()
                 .WithButton("Click here to view your cards", "showcardmenu", style: ButtonStyle.Secondary)
                 .Build());
         }
