@@ -9,7 +9,6 @@ UNO on Discord
 
 <div align="center">
 
-[<img src="https://discordapp.com/api/guilds/735263201612005472/widget.png?style=shield">](https://discord.gg/UdCkusFA4d)
 <img src="https://img.shields.io/badge/-.NET%206.0-blueviolet">
 [![Discord Bots](https://top.gg/api/widget/status/914696129067757608.svg)](https://top.gg/bot/914696129067757608)
 [![Discord Bots](https://top.gg/api/widget/servers/914696129067757608.svg)](https://top.gg/bot/914696129067757608)
@@ -32,4 +31,4 @@ UNO on Discord
 
 ### Help & Issues
 
-If you encounter any issues or have any suggestions, please put them here on GitHub or on [the Discord support server](https://discord.gg/UdCkusFA4d).
+If you encounter any issues or have any suggestions, please put them here on GitHub.
